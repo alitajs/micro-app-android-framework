@@ -1,0 +1,12 @@
+<resources>
+
+    <!-- 请求异常提示 -->
+    <string name="common_error_tip">操作失败，请稍后再试</string>
+    <string name="common_request_error_tip">数据请求失败，请稍后再试</string>
+    <string name="common_network_error_tip">网络连接失败，请稍后再试</string>
+    <string name="common_upload_error_tip">上传失败，请重试</string>
+
+    <string name="viewfinderview_status_text1">将二维码/条码放入取景框内</string>
+    <string name="viewfinderview_status_text2">即可自动扫描</string>
+
+</resources>
