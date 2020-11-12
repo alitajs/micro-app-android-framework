@@ -1,4 +1,4 @@
-package com.alitajs.micro.ui.bridge;
+package com.alitajs.micro.net.interior.ui.bridge;
 
 import android.Manifest;
 import android.app.Activity;
@@ -14,28 +14,23 @@ import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.widget.Toast;
 
-import com.alitajs.micro.AlitaAgent;
 import com.alitajs.micro.BuildConfig;
-import com.alitajs.micro.AlitaManager;
-import com.alitajs.micro.bean.AlbumParamBean;
-import com.alitajs.micro.bean.CompletionBean;
-import com.alitajs.micro.bean.WebAppBean;
-import com.alitajs.micro.data.ConstantValue;
-import com.alitajs.micro.ui.activity.BaseMiniActivity;
-import com.alitajs.micro.ui.activity.MicroAppActivity;
-import com.alitajs.micro.ui.activity.ScanCodeActivity;
-import com.alitajs.micro.ui.activity.WebviewActivity;
-import com.alitajs.micro.ui.web.CompletionHandler;
-import com.alitajs.micro.utils.BitmapUtil;
-import com.alitajs.micro.utils.ScreenUtil;
-import com.lcw.library.imagepicker.ImagePicker;
+import com.alitajs.micro.net.interior.AlitaAgent;
+import com.alitajs.micro.net.interior.AlitaManager;
+import com.alitajs.micro.net.interior.bean.CompletionBean;
+import com.alitajs.micro.net.interior.bean.WebAppBean;
+import com.alitajs.micro.net.interior.data.ConstantValue;
+import com.alitajs.micro.net.interior.ui.activity.BaseMiniActivity;
+import com.alitajs.micro.net.interior.ui.activity.MicroAppActivity;
+import com.alitajs.micro.net.interior.ui.activity.ScanCodeActivity;
+import com.alitajs.micro.net.interior.ui.activity.WebviewActivity;
+import com.alitajs.micro.net.interior.ui.web.CompletionHandler;
+import com.alitajs.micro.net.interior.utils.ScreenUtil;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.List;
 
 
 public class DeviceAlitaBridge {

@@ -1,4 +1,4 @@
-package com.alitajs.micro;
+package com.alitajs.micro.net.interior;
 
 import android.Manifest;
 import android.app.Activity;
@@ -9,18 +9,18 @@ import android.os.Environment;
 import android.text.TextUtils;
 import android.widget.Toast;
 
-import com.alitajs.micro.bean.WebAppBean;
-import com.alitajs.micro.data.ConstantValue;
-import com.alitajs.micro.net.RequestBusiness;
-import com.alitajs.micro.net.interior.BaseResponse;
-import com.alitajs.micro.net.interior.BaseSubscriber;
-import com.alitajs.micro.net.interior.ExceptionHandle;
-import com.alitajs.micro.net.interior.ProgressCallBack;
-import com.alitajs.micro.net.protocol.RequestProtocol;
-import com.alitajs.micro.ui.activity.MicroAppActivity;
-import com.alitajs.micro.utils.FileUtil;
-import com.alitajs.micro.utils.LogUtil;
-import com.alitajs.micro.utils.ZipUtils;
+import com.alitajs.micro.net.interior.bean.WebAppBean;
+import com.alitajs.micro.net.interior.data.ConstantValue;
+import com.alitajs.micro.net.interior.net.RequestBusiness;
+import com.alitajs.micro.net.interior.net.interior.BaseResponse;
+import com.alitajs.micro.net.interior.net.interior.BaseSubscriber;
+import com.alitajs.micro.net.interior.net.interior.ExceptionHandle;
+import com.alitajs.micro.net.interior.net.interior.ProgressCallBack;
+import com.alitajs.micro.net.interior.net.protocol.RequestProtocol;
+import com.alitajs.micro.net.interior.ui.activity.MicroAppActivity;
+import com.alitajs.micro.net.interior.utils.FileUtil;
+import com.alitajs.micro.net.interior.utils.LogUtil;
+import com.alitajs.micro.net.interior.utils.ZipUtils;
 
 import java.io.File;
 import java.util.ArrayList;

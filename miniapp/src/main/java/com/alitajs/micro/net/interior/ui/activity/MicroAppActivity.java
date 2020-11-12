@@ -1,4 +1,4 @@
-package com.alitajs.micro.ui.activity;
+package com.alitajs.micro.net.interior.ui.activity;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -17,15 +17,15 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.alitajs.micro.R;
-import com.alitajs.micro.AlitaAgent;
-import com.alitajs.micro.data.ConstantValue;
-import com.alitajs.micro.ui.bridge.DeviceAlitaBridge;
-import com.alitajs.micro.ui.bridge.FileAlitaBridge;
-import com.alitajs.micro.ui.bridge.LocationAlitaBridge;
-import com.alitajs.micro.ui.bridge.MediaAlitaBridge;
-import com.alitajs.micro.ui.web.AlitaNativeWebView;
-import com.alitajs.micro.utils.FileUtil;
-import com.alitajs.micro.utils.LogUtil;
+import com.alitajs.micro.net.interior.AlitaAgent;
+import com.alitajs.micro.net.interior.data.ConstantValue;
+import com.alitajs.micro.net.interior.ui.bridge.DeviceAlitaBridge;
+import com.alitajs.micro.net.interior.ui.bridge.FileAlitaBridge;
+import com.alitajs.micro.net.interior.ui.bridge.LocationAlitaBridge;
+import com.alitajs.micro.net.interior.ui.bridge.MediaAlitaBridge;
+import com.alitajs.micro.net.interior.ui.web.AlitaNativeWebView;
+import com.alitajs.micro.net.interior.utils.FileUtil;
+import com.alitajs.micro.net.interior.utils.LogUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
