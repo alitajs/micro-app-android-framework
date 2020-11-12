@@ -11,7 +11,7 @@
         android:layout_height="fill_parent" />
 
     <!-- 扫描取景框 -->
-    <com.whalecloud.minialita.zxing.view.ViewfinderView
+    <com.alitajs.micro.zxing.view.ViewfinderView
         android:id="@+id/viewfinder_view"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" />
