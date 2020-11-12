@@ -6,7 +6,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DecodeFormat;
 import com.bumptech.glide.request.RequestOptions;
 import com.lcw.library.imagepicker.utils.ImageLoader;
-import com.whalecloud.minialita.R;
+import com.alitajs.micro.R;
 
 /**
  * 实现自定义图片加载

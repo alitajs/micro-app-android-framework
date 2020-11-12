@@ -33,7 +33,7 @@ import android.util.Log;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.Result;
-import com.whalecloud.minialita.R;
+import com.alitajs.micro.R;
 import com.whalecloud.minialita.ui.activity.ScanCodeActivity;
 import com.whalecloud.minialita.zxing.view.ViewfinderResultPointCallback;
 import com.whalecloud.minialita.zxing.view.camera.CameraManager;

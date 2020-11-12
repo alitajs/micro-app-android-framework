@@ -30,7 +30,7 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.google.zxing.ResultPoint;
-import com.whalecloud.minialita.R;
+import com.alitajs.micro.R;
 import com.whalecloud.minialita.zxing.view.camera.CameraManager;
 
 import java.util.ArrayList;

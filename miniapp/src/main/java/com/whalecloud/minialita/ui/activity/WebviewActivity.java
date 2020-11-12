@@ -6,7 +6,7 @@ import android.view.View;
 import com.tencent.smtt.sdk.WebSettings;
 import com.tencent.smtt.sdk.WebView;
 import com.tencent.smtt.sdk.WebViewClient;
-import com.whalecloud.minialita.R;
+import com.alitajs.micro.R;
 import com.whalecloud.minialita.utils.LogUtil;
 
 public class WebviewActivity extends BaseMiniActivity {

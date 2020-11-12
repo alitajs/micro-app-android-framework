@@ -19,7 +19,7 @@ import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.widget.Toast;
 
-import com.whalecloud.minialita.BuildConfig;
+import com.alitajs.micro.BuildConfig;
 import com.whalecloud.minialita.MiniAppManager;
 import com.whalecloud.minialita.bean.WebAppBean;
 import com.whalecloud.minialita.data.ConstantValue;

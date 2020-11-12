@@ -16,7 +16,7 @@ import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.whalecloud.minialita.R;
+import com.alitajs.micro.R;
 import com.whalecloud.minialita.MiniAppAgent;
 import com.whalecloud.minialita.data.ConstantValue;
 import com.whalecloud.minialita.ui.bridge.DeviceAlitaBridge;
@@ -60,7 +60,7 @@ public class MiniAppActivity extends BaseMiniActivity {
                         }
                         if (jsonObject.has("color")){
                             mNarBarTitle.setTextColor(Color.parseColor(jsonObject.optString("color")));
-                            VectorDrawableCompat vectorDrawableCompat = VectorDrawableCompat.create(getResources(),R.drawable.close,getTheme());
+                            VectorDrawableCompat vectorDrawableCompat = VectorDrawableCompat.create(getResources(), R.drawable.close,getTheme());
                             //你需要改变的颜色
                             vectorDrawableCompat.setTint(Color.parseColor(jsonObject.optString("color")));
                             mNarCloseIcon.setImageDrawable(vectorDrawableCompat);

@@ -27,7 +27,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 
-import com.whalecloud.minialita.R;
+import com.alitajs.micro.R;
 import com.whalecloud.minialita.data.PreferencesConstant;
 
 import java.io.Closeable;
