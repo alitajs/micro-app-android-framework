@@ -107,7 +107,7 @@ public class AlitaManager {
             Toast.makeText(mActivity, "请初始化SDK后操作",Toast.LENGTH_SHORT).show();
             return;
         }
-        RequestProtocol protocol = new RequestProtocol("/api/microApp/queryListByPage");
+        RequestProtocol protocol = new RequestProtocol("/api/app/microApp/queryListByPage");
         protocol.put("belongToApp", ConstantValue.APP_KEY);
         RequestBusiness business = new RequestBusiness();
         business.json(protocol, new BaseSubscriber<BaseResponse<WebAppBean>>() {
