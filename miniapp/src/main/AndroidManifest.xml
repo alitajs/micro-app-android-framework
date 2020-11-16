@@ -11,11 +11,14 @@
 
     <application>
         <activity android:name="com.alitajs.micro.ui.activity.MicroAppActivity"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme"/>
         <activity android:name="com.alitajs.micro.ui.activity.ScanCodeActivity"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme"/>
 
-        <activity android:name="com.alitajs.micro.ui.activity.WebviewActivity"/>
+        <activity android:name="com.alitajs.micro.ui.activity.WebviewActivity"
+            android:theme="@style/AppTheme"/>
 
     </application>
 </manifest>
