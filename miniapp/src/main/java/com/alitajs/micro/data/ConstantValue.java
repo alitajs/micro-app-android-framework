@@ -38,5 +38,7 @@ public class ConstantValue {
     public static final int MESSAGE_TYPE_NARBAR_BACK = 1005;
     //关闭事件处理
     public static final int MESSAGE_TYPE_NARBAR_CLOSE = 1006;
+    //设置webview背景色
+    public static final int MESSAGE_TYPE_WEBVIEW_BACKGROUND = 1007;
 
 }

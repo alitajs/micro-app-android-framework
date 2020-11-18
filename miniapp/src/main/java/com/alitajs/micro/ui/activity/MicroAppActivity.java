@@ -16,13 +16,14 @@ import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.alitajs.micro.R;
 import com.alitajs.micro.AlitaAgent;
+import com.alitajs.micro.R;
 import com.alitajs.micro.data.ConstantValue;
 import com.alitajs.micro.ui.bridge.DeviceAlitaBridge;
 import com.alitajs.micro.ui.bridge.FileAlitaBridge;
 import com.alitajs.micro.ui.bridge.LocationAlitaBridge;
 import com.alitajs.micro.ui.bridge.MediaAlitaBridge;
+import com.alitajs.micro.ui.bridge.UIAlitaBridge;
 import com.alitajs.micro.ui.web.AlitaNativeWebView;
 import com.alitajs.micro.utils.FileUtil;
 import com.alitajs.micro.utils.LogUtil;
@@ -40,6 +41,7 @@ public class MicroAppActivity extends BaseMiniActivity {
     AppCompatImageView mNarCloseIcon;
     AlitaNativeWebView mWebView;
 
+    UIAlitaBridge uiAlitaBridge;
     DeviceAlitaBridge deviceAlitaBridge;
     MediaAlitaBridge mediaAlitaBridge;
     FileAlitaBridge fileAlitaBridge;
@@ -49,50 +51,57 @@ public class MicroAppActivity extends BaseMiniActivity {
     String mUserData;
     boolean isNeedTopbar = true;
 
-    Handler mHandler = new Handler(){
+    Handler mHandler = new Handler() {
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
-            //TODO 回调处理
-            switch (msg.what) {
-                case ConstantValue.MESSAGE_TYPE_NARBAR:
-                    try {
+            try {
+                //TODO 回调处理
+                switch (msg.what) {
+                    case ConstantValue.MESSAGE_TYPE_NARBAR:
                         JSONObject jsonObject = new JSONObject(String.valueOf(msg.obj));
-                        if (jsonObject.has("backgroundColor")){
+                        if (jsonObject.has("backgroundColor")) {
                             mNarBar.setBackgroundColor(Color.parseColor(jsonObject.optString("backgroundColor")));
                         }
-                        if (jsonObject.has("color")){
+                        if (jsonObject.has("color")) {
                             mNarBarTitle.setTextColor(Color.parseColor(jsonObject.optString("color")));
-                            VectorDrawableCompat vectorDrawableCompat = VectorDrawableCompat.create(getResources(),R.drawable.close,getTheme());
+                            VectorDrawableCompat vectorDrawableCompat = VectorDrawableCompat.create(getResources(), R.drawable.close, getTheme());
                             //你需要改变的颜色
                             vectorDrawableCompat.setTint(Color.parseColor(jsonObject.optString("color")));
                             mNarCloseIcon.setImageDrawable(vectorDrawableCompat);
                         }
-                        if (jsonObject.has("fontSize")){
+                        if (jsonObject.has("fontSize")) {
                             mNarBarTitle.setTextSize(jsonObject.optInt("fontSize"));
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    break;
-                case ConstantValue.MESSAGE_TYPE_NARBAR_TITLE:
-                    mNarBarTitle.setText(String.valueOf(msg.obj));
-                    break;
-                case ConstantValue.MESSAGE_TYPE_NARBAR_BACK_EVENT:
-                    //mWebView.loadUrl("javascript:alita.fireDocumentEvent(\"back\")");
-                    onBackClick();
-                    break;
-                case ConstantValue.MESSAGE_TYPE_NARBAR_BACK:
-                    if (mWebView.canGoBack())
-                        mWebView.goBack();
-                    break;
-                case ConstantValue.MESSAGE_TYPE_NARBAR_CLOSE:
-                    finish();
-                    break;
-                case ConstantValue.MESSAGE_TYPE_NARBAR_BACK_VISIBLE:
-                    //显示/隐藏 返回按钮
-                    //mNarBarBack.setVisibility();
-                    break;
+
+                        break;
+                    case ConstantValue.MESSAGE_TYPE_NARBAR_TITLE:
+                        mNarBarTitle.setText(String.valueOf(msg.obj));
+                        break;
+                    case ConstantValue.MESSAGE_TYPE_NARBAR_BACK_EVENT:
+                        //mWebView.loadUrl("javascript:alita.fireDocumentEvent(\"back\")");
+                        onBackClick();
+                        break;
+                    case ConstantValue.MESSAGE_TYPE_NARBAR_BACK:
+                        if (mWebView.canGoBack())
+                            mWebView.goBack();
+                        break;
+                    case ConstantValue.MESSAGE_TYPE_NARBAR_CLOSE:
+                        finish();
+                        break;
+                    case ConstantValue.MESSAGE_TYPE_NARBAR_BACK_VISIBLE:
+                        //显示/隐藏 返回按钮
+                        //mNarBarBack.setVisibility();
+                        break;
+                    case ConstantValue.MESSAGE_TYPE_WEBVIEW_BACKGROUND:
+                        JSONObject jb = new JSONObject(String.valueOf(msg.obj));
+                        if (jb.has("backgroundColor")) {
+                            mWebView.setBackgroundColor(Color.parseColor(jb.optString("backgroundColor")));
+                        }
+                        break;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     };
@@ -116,6 +125,10 @@ public class MicroAppActivity extends BaseMiniActivity {
     protected void init() {
         LogUtil.i("caicai", "init");
         mWebView = AlitaAgent.getWebView();
+        mWebView.setBackgroundResource(R.color.transparent);
+        uiAlitaBridge = new UIAlitaBridge(MicroAppActivity.this);
+        uiAlitaBridge.setHandler(mHandler);
+        mWebView.addJavascriptObject(uiAlitaBridge, "ui");
         deviceAlitaBridge = new DeviceAlitaBridge(MicroAppActivity.this);
         deviceAlitaBridge.setHandler(mHandler);
         mWebView.addJavascriptObject(deviceAlitaBridge, "device");//Window.Android.xxx()
@@ -147,10 +160,10 @@ public class MicroAppActivity extends BaseMiniActivity {
         }
         mContentView.addView(mWebView);
 
-        if (!TextUtils.isEmpty(htmlPath)){
+        if (!TextUtils.isEmpty(htmlPath)) {
             //TODO 获取asset-manifest.json下的配置
             String file = htmlPath + "/asset-manifest.json";
-            String json = FileUtil.readTxtFile(file.replace("file:///",""));
+            String json = FileUtil.readTxtFile(file.replace("file:///", ""));
             try {
                 //解析获取标题
                 JSONObject jsonObject = new JSONObject(json);
@@ -192,8 +205,8 @@ public class MicroAppActivity extends BaseMiniActivity {
         });
     }
 
-    private void onBackClick(){
-        if (mWebView.canGoBack()){
+    private void onBackClick() {
+        if (mWebView.canGoBack()) {
             mWebView.goBack();
             mNarBarBack.setVisibility(mWebView.canGoBack() ? View.VISIBLE : View.GONE);
             return;
@@ -212,10 +225,10 @@ public class MicroAppActivity extends BaseMiniActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (mediaAlitaBridge != null){
+        if (mediaAlitaBridge != null) {
             mediaAlitaBridge.onActivityResult(requestCode, resultCode, data);
         }
-        if (deviceAlitaBridge != null){
+        if (deviceAlitaBridge != null) {
             deviceAlitaBridge.onActivityResult(requestCode, resultCode, data);
         }
     }
