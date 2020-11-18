@@ -39,7 +39,7 @@ public class AlitaAgent {
         map.put(TbsCoreSettings.TBS_SETTINGS_USE_DEXLOADER_SERVICE, true);
         QbSdk.initTbsSettings(map);
 
-        final String vendors = FileUtil.getJsStr(context, "vendors.js");
+        final String vendors = FileUtil.getJsStr(context, "web-framework.js");
         final String jsStr = FileUtil.getJsStr(context, "dsbridge.js");
         mWebView = new AlitaNativeWebView(context);
         mWebView.setWebViewClient(new WebViewClient() {
@@ -109,9 +109,6 @@ public class AlitaAgent {
 
             @Override
             public WebResourceResponse shouldInterceptRequest(WebView webView, String url) {
-               /* if (url.indexOf("vendors.js") > -1) {
-                    return getWebResourceResponse(context,"vendors.js");
-                }*/
                 return super.shouldInterceptRequest(webView, url);
             }
         });
