@@ -119,11 +119,11 @@ public class AlitaManager {
             }
         }
         //TODO 判断文件是否存在 版本对比 下载，解压，启动
-        appPath = dir + appData.appid + "/" + appData.id;
+        appPath = dir + appData.appid + "/" + appData.versionId;
         zipPath = appPath + "/" + fileName + ".zip";
         File file = new File(zipPath);
         if (!file.exists()) {
-            download(ConstantValue.BASE_URL + "version/download/?versionId=" + appData.versionId, appData.appid, appData.id, downloadCallback);
+            download(ConstantValue.BASE_URL + "version/download/?versionId=" + appData.versionId, appData.appid, appData.versionId, downloadCallback);
         } else {
             startWebActivity();
         }
