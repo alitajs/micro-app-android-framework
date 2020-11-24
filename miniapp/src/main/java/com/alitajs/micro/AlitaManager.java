@@ -9,7 +9,7 @@ import android.os.Environment;
 import android.text.TextUtils;
 import android.widget.Toast;
 
-import com.alitajs.micro.bean.WebAppBean;
+import com.alitajs.micro.bean.MicorAppBean;
 import com.alitajs.micro.data.ConstantValue;
 import com.alitajs.micro.net.RequestBusiness;
 import com.alitajs.micro.net.interior.BaseResponse;
@@ -18,6 +18,7 @@ import com.alitajs.micro.net.interior.ExceptionHandle;
 import com.alitajs.micro.net.interior.ProgressCallBack;
 import com.alitajs.micro.net.protocol.RequestProtocol;
 import com.alitajs.micro.ui.activity.MicroAppActivity;
+import com.alitajs.micro.ui.dialog.LoadingDialog;
 import com.alitajs.micro.utils.FileUtil;
 import com.alitajs.micro.utils.LogUtil;
 import com.alitajs.micro.utils.ZipUtils;
@@ -37,7 +38,10 @@ public class AlitaManager {
     String htmlPath;
     String fileName = "miniApp";
 
+    LoadingDialog mLoadingDialog;
+
     static volatile AlitaManager instance;
+
     public static AlitaManager getInstance(Activity activity) {
         if (instance == null) {
             synchronized (AlitaManager.class) {
@@ -51,29 +55,58 @@ public class AlitaManager {
 
     AlitaManager(Activity activity) {
         this.mActivity = activity;
-        dir = Environment.getExternalStorageDirectory().getAbsolutePath() +  "/" + activity.getPackageName() + "/WebApp/";
+        dir = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + activity.getPackageName() + "/WebApp/";
         File file = new File(dir);
         if (!file.exists()) {
             file.mkdirs();
         }
     }
 
+    public void initLoadingDialog(int color) {
+        if (mLoadingDialog == null) {
+            mLoadingDialog = new LoadingDialog(mActivity);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                mLoadingDialog.create();
+            }
+        }
+        mLoadingDialog.initColor(color);
+    }
+
+    private void showLoadingDialog() {
+        if (mLoadingDialog != null) {
+            mLoadingDialog.show();
+        }
+    }
+
+    private void dismissLoadingDialog() {
+        if (mLoadingDialog != null) {
+            mLoadingDialog.dismiss();
+        }
+    }
+
     /**
      * 启动微应用
      *
-     * @param versionId
-     * @param appName
-     * @param miniAppId
-     * @param version
+     * @param appData
      */
-    public void startWebApp(String versionId, String appName, String miniAppId, String version, String userData) {
+    public void startMicorApp(MicorAppBean.MicorAppData appData, String userData) {
+        startMicorApp(appData, userData, null);
+    }
+
+    /**
+     * 启动微应用
+     *
+     * @param appData
+     * @param downloadCallback
+     */
+    public void startMicorApp(MicorAppBean.MicorAppData appData, String userData, DownloadCallback downloadCallback) {
         this.mUserData = userData;
-        if (TextUtils.isEmpty(versionId)){
-            Toast.makeText(mActivity,"暂无上线版本", Toast.LENGTH_SHORT).show();
+        if (TextUtils.isEmpty(appData.versionId)) {
+            Toast.makeText(mActivity, "暂无上线版本", Toast.LENGTH_SHORT).show();
             return;
         }
         //权限请求
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             List<String> lackedPermission = new ArrayList<String>();
             if (!(mActivity.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)) {
                 lackedPermission.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -86,12 +119,12 @@ public class AlitaManager {
             }
         }
         //TODO 判断文件是否存在 版本对比 下载，解压，启动
-        appPath = dir + miniAppId + "/" + version;
+        appPath = dir + appData.appid + "/" + appData.id;
         zipPath = appPath + "/" + fileName + ".zip";
         File file = new File(zipPath);
-        if (!file.exists()){
-            download(ConstantValue.BASE_URL + "version/download/?versionId=" + versionId,miniAppId, version);
-        }else {
+        if (!file.exists()) {
+            download(ConstantValue.BASE_URL + "version/download/?versionId=" + appData.versionId, appData.appid, appData.id, downloadCallback);
+        } else {
             startWebActivity();
         }
     }
@@ -102,15 +135,15 @@ public class AlitaManager {
      *
      * @return
      */
-    public void getWebAppList(final RequestCallback callback) {
-        if (TextUtils.isEmpty(ConstantValue.APP_KEY)){
-            Toast.makeText(mActivity, "请初始化SDK后操作",Toast.LENGTH_SHORT).show();
+    public void getMicorAppList(final RequestCallback callback) {
+        if (TextUtils.isEmpty(ConstantValue.APP_KEY)) {
+            Toast.makeText(mActivity, "请初始化SDK后操作", Toast.LENGTH_SHORT).show();
             return;
         }
         RequestProtocol protocol = new RequestProtocol("/api/app/microApp/queryListByPage");
         protocol.put("belongToApp", ConstantValue.APP_KEY);
         RequestBusiness business = new RequestBusiness();
-        business.json(protocol, new BaseSubscriber<BaseResponse<WebAppBean>>() {
+        business.json(protocol, new BaseSubscriber<BaseResponse<MicorAppBean>>() {
             @Override
             public void onError(ExceptionHandle.RespondThrowable e) {
                 if (callback != null)
@@ -118,10 +151,10 @@ public class AlitaManager {
             }
 
             @Override
-            public void onNext(BaseResponse<WebAppBean> response) {
-                WebAppBean webAppBean = response.getData(WebAppBean.class);
+            public void onNext(BaseResponse<MicorAppBean> response) {
+                MicorAppBean micorAppBean = response.getData(MicorAppBean.class);
                 if (callback != null)
-                    callback.onSuccess(webAppBean.records);
+                    callback.onSuccess(micorAppBean.records);
             }
         });
     }
@@ -129,12 +162,14 @@ public class AlitaManager {
     /**
      * 下载微应用
      */
-    private void download(String dwonloadUrl, final String miniAppId, final String version) {
+    private void download(String dwonloadUrl, final String miniAppId, final String version, final DownloadCallback downloadCallback) {
         LogUtil.i("caicai", "download start");
         File file = new File(dir + miniAppId + "/" + version);
         if (!file.exists()) {
             file.mkdirs();
         }
+        if (downloadCallback == null)
+            showLoadingDialog();
         RequestBusiness business = new RequestBusiness();
         RequestProtocol protocol = new RequestProtocol(dwonloadUrl);
         protocol.putSavePath(zipPath);
@@ -143,38 +178,53 @@ public class AlitaManager {
             @Override
             public void onError(final Throwable e) {
                 // TODO 主线程
-                mActivity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(mActivity, "下载失败 " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+                if (downloadCallback != null) {
+                    downloadCallback.onError(e.getMessage());
+                } else {
+                    mActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dismissLoadingDialog();
+                            Toast.makeText(mActivity, "下载失败 " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
             }
 
             @Override
             public void onCompleted(File file, long fileSize) {
                 LogUtil.i("caicai", "downloaw end");
-                mActivity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(mActivity, "下载成功", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                if (downloadCallback != null) {
+                    downloadCallback.onSuccess();
+                } else {
+                    mActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dismissLoadingDialog();
+                            Toast.makeText(mActivity, "下载成功", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+
                 startWebActivity();
-                //TODO 删除旧版包
+                //删除旧版包
                 deleteWebApp(dir + miniAppId, version);
             }
 
             @Override
             public void onProgress(long total, long current) {
                 super.onProgress(total, current);
-                //TODO 是否需要进度条
+                //进度条回调
+                if (downloadCallback != null) {
+                    downloadCallback.onProgress(total, current);
+                }
             }
         });
     }
 
     /**
      * 删除除最新版之外的文件夹
+     *
      * @param path
      * @param version
      */
@@ -183,7 +233,7 @@ public class AlitaManager {
         File files[] = root.listFiles();
         if (files != null)
             for (File f : files) {
-                if (!f.getAbsolutePath().contains(version)){
+                if (!f.getAbsolutePath().contains(version)) {
                     FileUtil.delele(f.getPath());
                 }
             }
@@ -195,39 +245,52 @@ public class AlitaManager {
     private void startWebActivity() {
         htmlPath = "file:///" + appPath + "/" + fileName;
         //已下载已解压
-        File htmlFile = new File(appPath  + "/" + fileName + "/" );
+        File htmlFile = new File(appPath + "/" + fileName + "/");
         if (htmlFile.exists()) {
             String url = htmlPath;
-            if (htmlPath.startsWith("file:///") && !htmlPath.contains("js-call-native")){
+            if (htmlPath.startsWith("file:///") && !htmlPath.contains("js-call-native")) {
                 url += "/dist/index.html";
             }
             //MiniAppAgent.getWebView().clearHistory();
             AlitaAgent.getWebView().loadUrl(url);
             Intent intent = new Intent(mActivity, MicroAppActivity.class);
             intent.putExtra("htmlPath", htmlPath);
-            intent.putExtra("userData",mUserData);
+            intent.putExtra("userData", mUserData);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
             mActivity.startActivity(intent);
-        }else {
+        } else {
             //存在未解压的情况
             File zipFile = new File(zipPath);
             if (zipFile.exists()) {
                 try {
                     //解压
-                    ZipUtils.UnZipFolder(zipPath, appPath  + "/" + fileName + "/" );
+                    ZipUtils.UnZipFolder(zipPath, appPath + "/" + fileName + "/");
                     startWebActivity();
                 } catch (Exception e) {
                     e.printStackTrace();
                     //TODO 解压失败，删除文件重新下载
+                    //deleteWebApp(dir + miniAppId, version);
                 }
             }
         }
     }
 
-    public interface RequestCallback{
-        //微应用列表回调
+
+    //微应用列表回调
+    public interface RequestCallback {
+
         void onError(String errorCode, String errorMessage);
 
-        void onSuccess(ArrayList<WebAppBean.WebAppData> records);
+        void onSuccess(ArrayList<MicorAppBean.MicorAppData> records);
+    }
+
+    //下载回调
+    public interface DownloadCallback {
+
+        void onError(String errorMessage);
+
+        void onSuccess();
+
+        void onProgress(long total, long current);
     }
 }

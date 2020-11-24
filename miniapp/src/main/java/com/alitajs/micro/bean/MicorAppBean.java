@@ -2,11 +2,11 @@ package com.alitajs.micro.bean;
 
 import java.util.ArrayList;
 
-public class WebAppBean {
+public class MicorAppBean {
 
-    public ArrayList<WebAppData> records;
+    public ArrayList<MicorAppData> records;
 
-    public class WebAppData {
+    public static class MicorAppData {
         public String sourceFrom;
         public int pageNo;
         public int pageSize;

@@ -16,8 +16,8 @@ import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.alitajs.micro.AlitaAgent;
 import com.alitajs.micro.R;
+import com.alitajs.micro.AlitaAgent;
 import com.alitajs.micro.data.ConstantValue;
 import com.alitajs.micro.ui.bridge.DeviceAlitaBridge;
 import com.alitajs.micro.ui.bridge.FileAlitaBridge;

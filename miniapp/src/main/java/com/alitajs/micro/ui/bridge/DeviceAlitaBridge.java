@@ -17,25 +17,20 @@ import android.widget.Toast;
 import com.alitajs.micro.AlitaAgent;
 import com.alitajs.micro.BuildConfig;
 import com.alitajs.micro.AlitaManager;
-import com.alitajs.micro.bean.AlbumParamBean;
 import com.alitajs.micro.bean.CompletionBean;
-import com.alitajs.micro.bean.WebAppBean;
+import com.alitajs.micro.bean.MicorAppBean;
 import com.alitajs.micro.data.ConstantValue;
 import com.alitajs.micro.ui.activity.BaseMiniActivity;
 import com.alitajs.micro.ui.activity.MicroAppActivity;
 import com.alitajs.micro.ui.activity.ScanCodeActivity;
 import com.alitajs.micro.ui.activity.WebviewActivity;
 import com.alitajs.micro.ui.web.CompletionHandler;
-import com.alitajs.micro.utils.BitmapUtil;
 import com.alitajs.micro.utils.ScreenUtil;
-import com.lcw.library.imagepicker.ImagePicker;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.List;
 
 
 public class DeviceAlitaBridge {
@@ -250,19 +245,19 @@ public class DeviceAlitaBridge {
     @JavascriptInterface
     public void fetchMicroAppList(Object params, final CompletionHandler handler) {
         //TODO 判断appley是否为空
-        AlitaManager.getInstance(mActivity).getWebAppList(new AlitaManager.RequestCallback() {
+        AlitaManager.getInstance(mActivity).getMicorAppList(new AlitaManager.RequestCallback() {
             @Override
             public void onError(String errorCode, String errorMessage) {
                 handler.complete("Error");
             }
 
             @Override
-            public void onSuccess(ArrayList<WebAppBean.WebAppData> records) {
+            public void onSuccess(ArrayList<MicorAppBean.MicorAppData> records) {
                 try {
                     JSONArray jsonArray = new JSONArray();
                     for (int i = 0; i < records.size(); i++) {
                         JSONObject jsonObject = new JSONObject();
-                        WebAppBean.WebAppData appData = records.get(i);
+                        MicorAppBean.MicorAppData appData = records.get(i);
                         jsonObject.put("appid", appData.appid);
                         jsonObject.put("appsecret", appData.appsecret);
                         jsonObject.put("appName", appData.appName);
@@ -299,7 +294,11 @@ public class DeviceAlitaBridge {
                 String versionId = app.optString("versionId", "");
                 String appName = app.optString("appName", "");
                 String appid = app.optString("appid", "");
-                AlitaManager.getInstance(mActivity).startWebApp(versionId, appName, appid, versionId, userData.toString());
+                MicorAppBean.MicorAppData appData = new MicorAppBean.MicorAppData();
+                appData.versionId = versionId;
+                appData.appid = appid;
+                appData.appName = appName;
+                AlitaManager.getInstance(mActivity).startMicorApp(appData, userData.toString(), null);
                 return;
             }
             String appURL = jsonObject.optString("appURL");
