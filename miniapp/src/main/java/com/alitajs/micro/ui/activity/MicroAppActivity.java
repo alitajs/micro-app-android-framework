@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v7.widget.AppCompatImageView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,8 +17,8 @@ import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.alitajs.micro.R;
 import com.alitajs.micro.AlitaAgent;
+import com.alitajs.micro.R;
 import com.alitajs.micro.data.ConstantValue;
 import com.alitajs.micro.ui.bridge.DeviceAlitaBridge;
 import com.alitajs.micro.ui.bridge.FileAlitaBridge;
@@ -113,6 +114,7 @@ public class MicroAppActivity extends BaseMiniActivity {
             htmlPath = getIntent().getStringExtra("htmlPath");
             mUserData = getIntent().getStringExtra("userData");
             isNeedTopbar = getIntent().getBooleanExtra("needTopbar", true);
+            Log.i("caicai", "getExtraDatas mUserData = " + mUserData);
         }
     }
 
@@ -153,6 +155,7 @@ public class MicroAppActivity extends BaseMiniActivity {
         mNarBarTitle = findViewById(R.id.navbar_title);
         mFlParent = findViewById(R.id.fl_parent);
         mContentView = findViewById(R.id.content);
+        mNarCloseIcon = findViewById(R.id.close);
         mNarBar.setVisibility(isNeedTopbar ? View.VISIBLE : View.GONE);
         ViewGroup parent = (ViewGroup) mWebView.getParent();
         if (parent != null && parent instanceof ViewGroup) {
@@ -217,6 +220,7 @@ public class MicroAppActivity extends BaseMiniActivity {
     @Override
     protected void release() {
         super.release();
+        mWebView.clearHistory();
      /*   mWebView.loadDataWithBaseURL(null, "", "text/html", "utf-8", null);
         mWebView.clearHistory();
         ((ViewGroup) mWebView.getParent()).removeView(mWebView);*/
