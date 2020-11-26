@@ -95,7 +95,7 @@ public class UIAlitaBridge {
      */
     @JavascriptInterface
     public void setBackgroundColor(Object params, CompletionHandler handler) {
-        sendMessage(ConstantValue.MESSAGE_TYPE_NARBAR, params);
+        sendMessage(ConstantValue.MESSAGE_TYPE_WEBVIEW_BACKGROUND, params);
     }
 
 }

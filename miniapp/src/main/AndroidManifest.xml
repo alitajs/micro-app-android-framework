@@ -13,11 +13,16 @@
         <activity android:name="com.alitajs.micro.ui.activity.MicroAppActivity"
             android:screenOrientation="portrait"
             android:theme="@style/MicroTheme"/>
+
         <activity android:name="com.alitajs.micro.ui.activity.ScanCodeActivity"
             android:screenOrientation="portrait"
             android:theme="@style/MicroTheme"/>
 
         <activity android:name="com.alitajs.micro.ui.activity.WebviewActivity"
+            android:theme="@style/MicroTheme"/>
+
+        <activity android:name=".ui.activity.MicroAppNativeActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/MicroTheme"/>
 
     </application>

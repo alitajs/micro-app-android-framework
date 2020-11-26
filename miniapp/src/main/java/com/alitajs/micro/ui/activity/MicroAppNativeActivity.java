@@ -1,6 +1,7 @@
 package com.alitajs.micro.ui.activity;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
@@ -17,8 +18,8 @@ import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.alitajs.micro.R;
 import com.alitajs.micro.AlitaAgent;
+import com.alitajs.micro.R;
 import com.alitajs.micro.data.ConstantValue;
 import com.alitajs.micro.ui.bridge.DeviceAlitaBridge;
 import com.alitajs.micro.ui.bridge.FileAlitaBridge;
@@ -28,16 +29,19 @@ import com.alitajs.micro.ui.bridge.UIAlitaBridge;
 import com.alitajs.micro.ui.web.AlitaNativeWebView;
 import com.alitajs.micro.utils.FileUtil;
 import com.alitajs.micro.utils.LogUtil;
+import com.tencent.smtt.export.external.interfaces.WebResourceResponse;
+import com.tencent.smtt.sdk.ValueCallback;
+import com.tencent.smtt.sdk.WebView;
+import com.tencent.smtt.sdk.WebViewClient;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class MicroAppActivity extends BaseMiniActivity {
+public class MicroAppNativeActivity extends BaseMiniActivity {
 
     RelativeLayout mNarBar;
     RelativeLayout mNarBarBack;
     RelativeLayout mFlParent;
-    FrameLayout mContentView;
     TextView mNarBarTitle;
     AppCompatImageView mNarCloseIcon;
     AlitaNativeWebView mWebView;
@@ -51,7 +55,6 @@ public class MicroAppActivity extends BaseMiniActivity {
     String htmlPath;
     String mUserData;
     boolean isNeedTopbar = true;
-    String mCurUrl;
 
     Handler mHandler = new Handler() {
         @Override
@@ -71,10 +74,6 @@ public class MicroAppActivity extends BaseMiniActivity {
                             //你需要改变的颜色
                             vectorDrawableCompat.setTint(Color.parseColor(jsonObject.optString("color")));
                             mNarCloseIcon.setImageDrawable(vectorDrawableCompat);
-                            //深色
-                            //getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-                            //浅色
-                            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
                         }
                         if (jsonObject.has("fontSize")) {
                             mNarBarTitle.setTextSize(jsonObject.optInt("fontSize"));
@@ -125,33 +124,12 @@ public class MicroAppActivity extends BaseMiniActivity {
 
     @Override
     protected int provideContentViewId() {
-        return R.layout.activity_microapp;
+        return R.layout.activity_microapp_native;
     }
 
     @Override
     protected void init() {
         LogUtil.i("caicai", "init");
-        mWebView = AlitaAgent.getWebView();
-        mWebView.setBackgroundResource(R.color.transparent);
-        uiAlitaBridge = new UIAlitaBridge(MicroAppActivity.this);
-        uiAlitaBridge.setHandler(mHandler);
-        mWebView.addJavascriptObject(uiAlitaBridge, "ui");
-        deviceAlitaBridge = new DeviceAlitaBridge(MicroAppActivity.this);
-        deviceAlitaBridge.setHandler(mHandler);
-        mWebView.addJavascriptObject(deviceAlitaBridge, "device");//Window.Android.xxx()
-        mediaAlitaBridge = new MediaAlitaBridge(MicroAppActivity.this);
-        mWebView.addJavascriptObject(mediaAlitaBridge, "media");
-        fileAlitaBridge = new FileAlitaBridge(MicroAppActivity.this);
-        mWebView.addJavascriptObject(fileAlitaBridge, "file");
-        locationAlitaBridge = new LocationAlitaBridge(MicroAppActivity.this);
-        mWebView.addJavascriptObject(locationAlitaBridge, "location");
-        try {
-            if (!TextUtils.isEmpty(mUserData)){
-                deviceAlitaBridge.setUserData(new JSONObject(mUserData));
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -162,50 +140,111 @@ public class MicroAppActivity extends BaseMiniActivity {
         mFlParent = findViewById(R.id.fl_parent);
         mContentView = findViewById(R.id.content);
         mNarCloseIcon = findViewById(R.id.close);
+        mWebView = findViewById(R.id.webview);
         mNarBar.setVisibility(isNeedTopbar ? View.VISIBLE : View.GONE);
         ViewGroup parent = (ViewGroup) mWebView.getParent();
         if (parent != null && parent instanceof ViewGroup) {
             parent.removeView(mWebView);
         }
-        mContentView.addView(mWebView);
+
+        final String vendors = FileUtil.getJsStr(mActivity, "web-framework.js");
+        final String jsStr = FileUtil.getJsStr(mActivity, "dsbridge.js");
+        mWebView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                LogUtil.i("caicai", "shouldOverrideUrlLoading " + url);
+                view.loadUrl(url);
+                return true;
+            }
+
+            @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                super.onPageStarted(view, url, favicon);
+                LogUtil.i("caicai", "onPageStarted " + url);
+                mWebView.evaluateJavascript(vendors, new ValueCallback<String>() {
+                    @Override
+                    public void onReceiveValue(String value) {
+                        Log.i("caicai", "vendors " + value);
+                    }
+                });
+                mWebView.evaluateJavascript(jsStr, new ValueCallback<String>() {
+                    @Override
+                    public void onReceiveValue(String value) {
+                        Log.i("caicai", "jsStr " + value);
+                    }
+                });
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                LogUtil.i("caicai", "onPageFinished");
+                mNarBarBack.setVisibility(mWebView.canGoBack() ? View.VISIBLE : View.GONE);
+            }
+
+            @Override
+            public void onLoadResource(WebView view, String url) {
+                super.onLoadResource(view, url);
+                Log.i("caicai", "onLoadResource");
+                mWebView.evaluateJavascript(vendors, new ValueCallback<String>() {
+                    @Override
+                    public void onReceiveValue(String value) {
+                        Log.i("caicai", "vendors " + value);
+                    }
+                });
+                mWebView.evaluateJavascript(jsStr, new ValueCallback<String>() {
+                    @Override
+                    public void onReceiveValue(String value) {
+                        Log.i("caicai", "jsStr " + value);
+                    }
+                });
+            }
+
+            @Override
+            public void doUpdateVisitedHistory(WebView webView, String s, boolean b) {
+                super.doUpdateVisitedHistory(webView, s, b);
+            }
+
+            @Override
+            public WebResourceResponse shouldInterceptRequest(WebView webView, String url) {
+                return super.shouldInterceptRequest(webView, url);
+            }
+        });
+        mWebView.setScrollBarStyle(View.SCROLLBARS_OUTSIDE_OVERLAY);
+        mWebView.requestFocus();
+        mWebView.setBackgroundResource(R.color.transparent);
+        uiAlitaBridge = new UIAlitaBridge(MicroAppNativeActivity.this);
+        uiAlitaBridge.setHandler(mHandler);
+        mWebView.addJavascriptObject(uiAlitaBridge, "ui");
+        deviceAlitaBridge = new DeviceAlitaBridge(MicroAppNativeActivity.this);
+        deviceAlitaBridge.setHandler(mHandler);
+        mWebView.addJavascriptObject(deviceAlitaBridge, "device");//Window.Android.xxx()
+        mediaAlitaBridge = new MediaAlitaBridge(MicroAppNativeActivity.this);
+        mWebView.addJavascriptObject(mediaAlitaBridge, "media");
+        fileAlitaBridge = new FileAlitaBridge(MicroAppNativeActivity.this);
+        mWebView.addJavascriptObject(fileAlitaBridge, "file");
+        locationAlitaBridge = new LocationAlitaBridge(MicroAppNativeActivity.this);
+        mWebView.addJavascriptObject(locationAlitaBridge, "location");
+        try {
+            deviceAlitaBridge.setUserData(new JSONObject(mUserData));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
         if (!TextUtils.isEmpty(htmlPath)) {
             //TODO 获取asset-manifest.json下的配置
-            String file = htmlPath + "/asset-manifest.json";
+            /*String file = htmlPath + "/asset-manifest.json";
             String json = FileUtil.readTxtFile(file.replace("file:///", ""));
             try {
                 //解析获取标题
                 JSONObject jsonObject = new JSONObject(json);
-                if (jsonObject.has("name")) {
-                    String name = jsonObject.optString("name");
-                    mNarBarTitle.setText(name);
-                }
-                if (jsonObject.has("navBar")) {
-                    JSONObject navBar = jsonObject.optJSONObject("navBar");
-                    if (navBar.has("backgroundColor")) {
-                        mNarBar.setBackgroundColor(Color.parseColor(navBar.optString("backgroundColor")));
-                    }
-                    if (navBar.has("color")) {
-                        mNarBarTitle.setTextColor(Color.parseColor(navBar.optString("color")));
-                        VectorDrawableCompat vectorDrawableCompat = VectorDrawableCompat.create(getResources(), R.drawable.close, getTheme());
-                        //你需要改变的颜色
-                        vectorDrawableCompat.setTint(Color.parseColor(navBar.optString("color")));
-                        mNarCloseIcon.setImageDrawable(vectorDrawableCompat);
-                    }
-                    if (navBar.has("fontSize")) {
-                        mNarBarTitle.setTextSize(navBar.optInt("fontSize"));
-                    }
-                }
-                if (jsonObject.has("backgroundColor")) {
-                    String backgroundColor = jsonObject.optString("backgroundColor");
-                    mWebView.setBackgroundColor(Color.parseColor(backgroundColor));
-                }
-
+                String name = jsonObject.optString("name");
+                mNarBarTitle.setText(name);
             } catch (JSONException e) {
                 e.printStackTrace();
-            }
+            }*/
+            mWebView.loadUrl(htmlPath);
         }
-        AlitaAgent.setNeedClearHistory(true);
     }
 
     @Override
@@ -216,7 +255,6 @@ public class MicroAppActivity extends BaseMiniActivity {
                 finish();
             }
         });
-
         mNarBarBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -227,7 +265,7 @@ public class MicroAppActivity extends BaseMiniActivity {
         AlitaAgent.setPageStateListener(new AlitaAgent.PageStateListener() {
             @Override
             public void onPageStarted(String url) {
-                mCurUrl = url;
+
             }
 
             @Override
@@ -246,10 +284,12 @@ public class MicroAppActivity extends BaseMiniActivity {
         finish();
     }
 
-
     @Override
     protected void release() {
         super.release();
+     /*   mWebView.loadDataWithBaseURL(null, "", "text/html", "utf-8", null);
+        mWebView.clearHistory();
+        ((ViewGroup) mWebView.getParent()).removeView(mWebView);*/
     }
 
     @Override
@@ -266,8 +306,6 @@ public class MicroAppActivity extends BaseMiniActivity {
     @Override
     protected void onResume() {
         super.onResume();
-//        Log.i("caicai","onResume  " + mCurUrl);
-//        mWebView.loadUrl(mCurUrl);
         //TODO 调用js通知
         mWebView.loadUrl("javascript:WebViewJavascriptBridge.fireDocumentEvent(\"resume\")");
     }
@@ -276,8 +314,6 @@ public class MicroAppActivity extends BaseMiniActivity {
     protected void onPause() {
         super.onPause();
         //TODO 调用js通知
-//        mCurUrl = mWebView.getUrl();
-//        Log.i("caicai","onPause  " + mCurUrl);
         mWebView.loadUrl("javascript:WebViewJavascriptBridge.fireDocumentEvent(\"pause\")");
     }
 

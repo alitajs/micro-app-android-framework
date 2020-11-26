@@ -62,12 +62,10 @@ public class AlitaManager {
         }
     }
 
-    public void initLoadingDialog(int color) {
-        if (mLoadingDialog == null) {
-            mLoadingDialog = new LoadingDialog(mActivity);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                mLoadingDialog.create();
-            }
+    public void initLoadingDialog(Activity activity, int color) {
+        mLoadingDialog = new LoadingDialog(activity);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mLoadingDialog.create();
         }
         mLoadingDialog.initColor(color);
     }
@@ -101,6 +99,8 @@ public class AlitaManager {
      */
     public void startMicorApp(MicorAppBean.MicorAppData appData, String userData, DownloadCallback downloadCallback) {
         this.mUserData = userData;
+        AlitaAgent.getWebView().loadDataWithBaseURL(null, "", "text/html", "utf-8", null);
+        AlitaAgent.getWebView().clearHistory();
         if (TextUtils.isEmpty(appData.versionId)) {
             Toast.makeText(mActivity, "暂无上线版本", Toast.LENGTH_SHORT).show();
             return;
@@ -251,7 +251,6 @@ public class AlitaManager {
             if (htmlPath.startsWith("file:///") && !htmlPath.contains("js-call-native")) {
                 url += "/dist/index.html";
             }
-            //MiniAppAgent.getWebView().clearHistory();
             AlitaAgent.getWebView().loadUrl(url);
             Intent intent = new Intent(mActivity, MicroAppActivity.class);
             intent.putExtra("htmlPath", htmlPath);

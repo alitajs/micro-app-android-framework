@@ -305,6 +305,7 @@ public class DeviceAlitaBridge {
             if (!TextUtils.isEmpty(appURL)){
                 AlitaAgent.getWebView().loadUrl(appURL);
                 Intent intent = new Intent(mActivity, MicroAppActivity.class);
+                intent.putExtra("userData", userData.toString());
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
                 mActivity.startActivity(intent);
                 handler.complete(new CompletionBean(0, "启动成功", "").getResult());

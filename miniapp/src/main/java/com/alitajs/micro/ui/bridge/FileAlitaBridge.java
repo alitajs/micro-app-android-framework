@@ -12,6 +12,7 @@ import com.alitajs.micro.net.interior.ProgressCallBack;
 import com.alitajs.micro.net.protocol.RequestProtocol;
 import com.alitajs.micro.ui.activity.BaseMiniActivity;
 import com.alitajs.micro.ui.activity.WebviewActivity;
+import com.alitajs.micro.ui.dialog.LoadingDialog;
 import com.alitajs.micro.ui.web.CompletionHandler;
 
 import org.json.JSONException;
@@ -23,6 +24,7 @@ import java.net.URLEncoder;
 public class FileAlitaBridge {
 
     BaseMiniActivity mActivity;
+    LoadingDialog mLoadingDialog;
 
     public <T extends BaseMiniActivity> FileAlitaBridge(T activity) {
         this.mActivity = activity;
@@ -81,6 +83,7 @@ public class FileAlitaBridge {
             return;
         }
         //TODO
+        showLoadingDialog();
         String dir = Environment.getExternalStorageDirectory().getAbsolutePath() +  "/" + mActivity.getPackageName() + "/Download/";
         File file = new File(dir);
         if (!file.exists()) {
@@ -101,9 +104,9 @@ public class FileAlitaBridge {
                     public void run() {
                         Toast.makeText(mActivity, "下载失败，请重试" + e.getMessage(), Toast.LENGTH_SHORT).show();
                         handler.complete(new CompletionBean(3, "下载失败", "").getResult());
+                        dismissLoadingDialog();
                     }
                 });
-                handler.complete("Error");
             }
 
             @Override
@@ -112,9 +115,10 @@ public class FileAlitaBridge {
                     @Override
                     public void run() {
                         Toast.makeText(mActivity, "文件保存在" + path, Toast.LENGTH_SHORT).show();
+                        handler.complete(new CompletionBean(0, "下载成功", "").getResult());
+                        dismissLoadingDialog();
                     }
                 });
-                handler.complete(new CompletionBean(0, "下载成功", "").getResult());
             }
 
             @Override
@@ -123,5 +127,18 @@ public class FileAlitaBridge {
                 //TODO 是否需要进度条
             }
         });
+    }
+
+    private void showLoadingDialog() {
+        if (mLoadingDialog != null) {
+          mLoadingDialog = new LoadingDialog(mActivity);
+        }
+        mLoadingDialog.show();
+    }
+
+    private void dismissLoadingDialog() {
+        if (mLoadingDialog != null) {
+            mLoadingDialog.dismiss();
+        }
     }
 }
