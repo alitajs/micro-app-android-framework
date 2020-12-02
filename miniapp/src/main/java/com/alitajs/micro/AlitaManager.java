@@ -255,7 +255,7 @@ public class AlitaManager {
             Intent intent = new Intent(mActivity, MicroAppActivity.class);
             intent.putExtra("htmlPath", htmlPath);
             intent.putExtra("userData", mUserData);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+            //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
             mActivity.startActivity(intent);
         } else {
             //存在未解压的情况

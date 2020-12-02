@@ -98,4 +98,14 @@ public class UIAlitaBridge {
         sendMessage(ConstantValue.MESSAGE_TYPE_WEBVIEW_BACKGROUND, params);
     }
 
+    /**
+     * 设置状态栏颜色
+     * @param params theme:light|dark
+     * @param handler
+     */
+    @JavascriptInterface
+    public void setStatusBar(Object params, CompletionHandler handler) {
+        sendMessage(ConstantValue.MESSAGE_TYPE_STATUSBAR, params);
+    }
+
 }

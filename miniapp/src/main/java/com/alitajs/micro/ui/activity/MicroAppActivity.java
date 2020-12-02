@@ -1,21 +1,33 @@
 package com.alitajs.micro.ui.activity;
 
+import android.Manifest;
+import android.app.Activity;
+import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Color;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.graphics.drawable.VectorDrawableCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.widget.AppCompatImageView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.ValueCallback;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.alitajs.micro.R;
 import com.alitajs.micro.AlitaAgent;
@@ -26,13 +38,21 @@ import com.alitajs.micro.ui.bridge.LocationAlitaBridge;
 import com.alitajs.micro.ui.bridge.MediaAlitaBridge;
 import com.alitajs.micro.ui.bridge.UIAlitaBridge;
 import com.alitajs.micro.ui.web.AlitaNativeWebView;
+import com.alitajs.micro.ui.web.MicroWebChromeClient;
 import com.alitajs.micro.utils.FileUtil;
 import com.alitajs.micro.utils.LogUtil;
+import com.lcw.library.imagepicker.activity.BaseActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class MicroAppActivity extends BaseMiniActivity {
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+public class MicroAppActivity extends BaseMiniActivity implements MicroWebChromeClient.OpenFileChooserCallBack{
+
+    static final int REQUEST_CODE_PICK_IMAGE = 10;
 
     RelativeLayout mNarBar;
     RelativeLayout mNarBarBack;
@@ -52,6 +72,9 @@ public class MicroAppActivity extends BaseMiniActivity {
     String mUserData;
     boolean isNeedTopbar = true;
     String mCurUrl;
+
+    ValueCallback<Uri> mUploadMsg;
+    ValueCallback<Uri[]> mUploadMsg5Plus;
 
     Handler mHandler = new Handler() {
         @Override
@@ -105,6 +128,19 @@ public class MicroAppActivity extends BaseMiniActivity {
                             mWebView.setBackgroundColor(Color.parseColor(jb.optString("backgroundColor")));
                         }
                         break;
+                    case ConstantValue.MESSAGE_TYPE_STATUSBAR:
+                        JSONObject status = new JSONObject(String.valueOf(msg.obj));
+                        if (status.has("theme")) {
+                            String theme = status.optString("theme");
+                            if (theme.equals("light")){
+                                //浅色
+                                getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+                            }else if (theme.equals("dark")){
+                                //深色
+                                getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                            }
+                        }
+                        break;
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -145,6 +181,7 @@ public class MicroAppActivity extends BaseMiniActivity {
         mWebView.addJavascriptObject(fileAlitaBridge, "file");
         locationAlitaBridge = new LocationAlitaBridge(MicroAppActivity.this);
         mWebView.addJavascriptObject(locationAlitaBridge, "location");
+        mWebView.setWebChromeClient(new MicroWebChromeClient(mActivity, this));
         try {
             if (!TextUtils.isEmpty(mUserData)){
                 deviceAlitaBridge.setUserData(new JSONObject(mUserData));
@@ -214,6 +251,9 @@ public class MicroAppActivity extends BaseMiniActivity {
             @Override
             public void onClick(View v) {
                 finish();
+                mWebView.setBackgroundColor(Color.parseColor("#ffffff"));
+                mWebView.loadDataWithBaseURL(null, "", "text/html", "utf-8", null);
+                mWebView.clearHistory();
             }
         });
 
@@ -244,6 +284,9 @@ public class MicroAppActivity extends BaseMiniActivity {
             return;
         }
         finish();
+        mWebView.setBackgroundColor(Color.parseColor("#ffffff"));
+        mWebView.loadDataWithBaseURL(null, "", "text/html", "utf-8", null);
+        mWebView.clearHistory();
     }
 
 
@@ -261,13 +304,28 @@ public class MicroAppActivity extends BaseMiniActivity {
         if (deviceAlitaBridge != null) {
             deviceAlitaBridge.onActivityResult(requestCode, resultCode, data);
         }
+
+        if (resultCode == RESULT_CANCELED) {
+            Uri result = Uri.EMPTY;
+            sendPhoto(result);
+            return;
+        }
+        if (resultCode != Activity.RESULT_OK) {
+            return;
+        }
+        if (data != null) {
+            if (Build.VERSION.SDK_INT >= 23) {
+                sendPhoto(data.getData());
+            } else {
+                String imagePath = getImagePath(data.getData(), null);
+                sendPhoto(Uri.fromFile(new File(imagePath)));
+            }
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-//        Log.i("caicai","onResume  " + mCurUrl);
-//        mWebView.loadUrl(mCurUrl);
         //TODO 调用js通知
         mWebView.loadUrl("javascript:WebViewJavascriptBridge.fireDocumentEvent(\"resume\")");
     }
@@ -276,8 +334,6 @@ public class MicroAppActivity extends BaseMiniActivity {
     protected void onPause() {
         super.onPause();
         //TODO 调用js通知
-//        mCurUrl = mWebView.getUrl();
-//        Log.i("caicai","onPause  " + mCurUrl);
         mWebView.loadUrl("javascript:WebViewJavascriptBridge.fireDocumentEvent(\"pause\")");
     }
 
@@ -301,5 +357,63 @@ public class MicroAppActivity extends BaseMiniActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+    }
+
+    public void showOptions() {
+        requestPermission(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, new BaseMiniActivity.OnRequestPermissionListen() {
+            @Override
+            public void succeed() {
+                Intent intent = new Intent(Intent.ACTION_PICK,
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
+                startActivityForResult(intent, REQUEST_CODE_PICK_IMAGE);
+            }
+
+            @Override
+            public void fail() {
+                Toast.makeText(mActivity, "请开启存储权限后操作", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
+    //发送图片
+    public void sendPhoto(Uri uri) {
+        if (mUploadMsg != null) {
+            mUploadMsg.onReceiveValue(uri);
+            mUploadMsg = null;
+        } else {
+            mUploadMsg5Plus.onReceiveValue(new Uri[]{uri});
+            mUploadMsg5Plus = null;
+        }
+
+    }
+
+    /**
+     * 根据uri获取图片地址
+     **/
+    private String getImagePath(Uri uri, String selection) {
+        String path = null;
+        //通过Uri和selection老获取真实的图片路径
+        Cursor cursor = getContentResolver().query(uri, null, selection, null, null);
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+            }
+            cursor.close();
+        }
+        return path;
+    }
+
+    @Override
+    public void openFileChooserCallBack(com.tencent.smtt.sdk.ValueCallback<Uri> uploadMsg, String acceptType) {
+        mUploadMsg = uploadMsg;
+        showOptions();
+    }
+
+    @Override
+    public void showFileChooserCallBack(com.tencent.smtt.sdk.ValueCallback<Uri[]> filePathCallback) {
+        mUploadMsg5Plus = filePathCallback;
+        showOptions();
     }
 }
