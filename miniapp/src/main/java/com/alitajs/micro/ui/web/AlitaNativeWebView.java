@@ -3,7 +3,6 @@ package com.alitajs.micro.ui.web;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
-//import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -22,9 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.JavascriptInterface;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.Toast;
-
 
 import com.tencent.smtt.export.external.interfaces.IX5WebChromeClient;
 import com.tencent.smtt.export.external.interfaces.JsPromptResult;
@@ -42,11 +39,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+//import android.app.AlertDialog;
 
 public class AlitaNativeWebView extends WebView {
     private static final String BRIDGE_NAME = "_WebViewJavascriptBridge";
@@ -91,7 +91,7 @@ public class AlitaNativeWebView extends WebView {
                 PrintDebugInfo(error);
                 return ret.toString();
             }
-            Object arg=null;
+            Object arg = null;
             Method method = null;
             String callback = null;
 
@@ -100,7 +100,7 @@ public class AlitaNativeWebView extends WebView {
                 if (args.has("_dscbstub")) {
                     callback = args.getString("_dscbstub");
                 }
-                if(args.has("data")) {
+                if (args.has("data")) {
                     arg = args.get("data");
                 }
             } catch (JSONException e) {
@@ -287,6 +287,26 @@ public class AlitaNativeWebView extends WebView {
             // add dsbridge tag in lower android version
             settings.setUserAgentString(settings.getUserAgentString() + " _WebViewJavascriptBridge");
         }
+
+        //本地HTML里面有跨域的请求 原生webview需要设置之后才能实现跨域请求
+        try {
+            if (Build.VERSION.SDK_INT >= 16) {
+                Class<?> clazz = getSettings().getClass();
+                Method method = clazz.getMethod(
+                        "setAllowUniversalAccessFromFileURLs", boolean.class);
+                if (method != null) {
+                    method.invoke(getSettings(), true);
+                }
+            }
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
     }
 
     private String[] parseNamespace(String method) {
@@ -352,7 +372,7 @@ public class AlitaNativeWebView extends WebView {
                                 || javascriptCloseWindowListener.onClose()) {
                             Context context = getContext();
                             if (context instanceof Activity) {
-                                ((Activity)context).onBackPressed();
+                                ((Activity) context).onBackPressed();
                             }
                         }
                     }
@@ -375,7 +395,7 @@ public class AlitaNativeWebView extends WebView {
 
             @Keep
             @JavascriptInterface
-            public void returnValue(final Object obj){
+            public void returnValue(final Object obj) {
                 runOnMainThread(new Runnable() {
                     @Override
                     public void run() {
@@ -438,9 +458,9 @@ public class AlitaNativeWebView extends WebView {
         runOnMainThread(new Runnable() {
             @Override
             public void run() {
-                if (url != null && url.startsWith("javascript:")){
+                if (url != null && url.startsWith("javascript:")) {
                     AlitaNativeWebView.super.loadUrl(url);
-                }else{
+                } else {
                     callInfoList = new ArrayList<>();
                     AlitaNativeWebView.super.loadUrl(url);
                 }
@@ -460,9 +480,9 @@ public class AlitaNativeWebView extends WebView {
         runOnMainThread(new Runnable() {
             @Override
             public void run() {
-                if (url != null && url.startsWith("javascript:")){
+                if (url != null && url.startsWith("javascript:")) {
                     AlitaNativeWebView.super.loadUrl(url, additionalHttpHeaders);
-                }else{
+                } else {
                     callInfoList = new ArrayList<>();
                     AlitaNativeWebView.super.loadUrl(url, additionalHttpHeaders);
                 }
@@ -705,7 +725,7 @@ public class AlitaNativeWebView extends WebView {
                     return true;
                 }
             }
-            Toast.makeText(mContext,message, Toast.LENGTH_SHORT).show();
+            Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
             return true;
         }
 
@@ -785,7 +805,7 @@ public class AlitaNativeWebView extends WebView {
                         .setPositiveButton(android.R.string.ok, listener)
                         .setNegativeButton(android.R.string.cancel, listener)
                         .show();
-                FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
+                LayoutParams layoutParams = new LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT);
                 int t = (int) (dpi * 16);
@@ -998,8 +1018,6 @@ public class AlitaNativeWebView extends WebView {
         }
         mainHandler.post(runnable);
     }
-
-
 
 
 }
