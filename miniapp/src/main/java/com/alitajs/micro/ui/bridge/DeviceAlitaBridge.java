@@ -2,9 +2,11 @@ package com.alitajs.micro.ui.bridge;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.Settings;
@@ -31,6 +33,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class DeviceAlitaBridge {
@@ -316,6 +319,70 @@ public class DeviceAlitaBridge {
             e.printStackTrace();
             handler.complete(new CompletionBean(3, e.toString(), "").getResult());
         }
+    }
+
+    /**
+     * 查询安装的地图
+     * @param params
+     * @param handler
+     */
+    public void mapsList(Object params, final CompletionHandler handler){
+        try {
+            JSONArray jsonArray = new JSONArray();
+            final PackageManager packageManager = mActivity.getPackageManager();
+            //获取所有已安装程序的包信息
+            List<PackageInfo> packageInfos = packageManager.getInstalledPackages(0);
+            //从pinfo中将包名字逐一取出，压入pName list中
+            if(packageInfos != null){
+                for(int i = 0; i < packageInfos.size(); i++){
+                    String packName = packageInfos.get(i).packageName;
+                    //TODO 判断是否已安装
+                    if (packName.contains("com.baidu.BaiduMap")){//百度地图
+                        JSONObject jb = new JSONObject();
+                        jb.put("type","baidu");
+                        jsonArray.put(jb);
+                    }else if (packName.contains("com.autonavi.minimap")){//高德
+                        JSONObject jb = new JSONObject();
+                        jb.put("type","amap");
+                        jsonArray.put(jb);
+                    }else if (packName.contains("com.tencent.map")){//腾讯
+                        JSONObject jb = new JSONObject();
+                        jb.put("type","qq");
+                        jsonArray.put(jb);
+                    }
+                }
+            }
+            handler.complete(new CompletionBean(3, "获取成功", jsonArray).getResult());
+        }catch (Exception e) {
+            e.printStackTrace();
+            handler.complete(new CompletionBean(3, e.toString(), "").getResult());
+        }
+    }
+
+    /**
+     * 打开 URLSchema
+     * @param params { url: string } 要打开的URLSchema
+     * @param handler
+     */
+    @JavascriptInterface
+    public void openURLSchema(Object params, final CompletionHandler handler) {
+        try {
+            JSONObject jsonObject = new JSONObject(params.toString());
+            String url = jsonObject.optString("url");
+            if (!TextUtils.isEmpty(url)){
+                final Intent intent = new Intent();
+                intent.setAction(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse(url));
+                mActivity.startActivity(intent);
+                handler.complete(new CompletionBean(0, "启动成功", "").getResult());
+            }else {
+                handler.complete(new CompletionBean(3, "链接为空", "").getResult());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            handler.complete(new CompletionBean(3, e.toString(), "").getResult());
+        }
+
     }
 
 }

@@ -27,13 +27,14 @@
                     android:layout_height="match_parent"
                     android:visibility="gone">
 
-                    <ImageView
+                    <android.support.v7.widget.AppCompatImageView
+                        android:id="@+id/navbar_back_icon"
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:layout_marginRight="15dp"
                         android:layout_marginLeft="8dp"
                         android:layout_centerInParent="true"
-                        android:background="@mipmap/icon_common_arrowleft"/>
+                        app:srcCompat="@drawable/back_icon"/>
                 </RelativeLayout>
 
                 <RelativeLayout

@@ -3,6 +3,7 @@ package com.alitajs.micro.ui.web;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
+//import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -21,7 +22,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.JavascriptInterface;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.Toast;
+
 
 import com.tencent.smtt.export.external.interfaces.IX5WebChromeClient;
 import com.tencent.smtt.export.external.interfaces.JsPromptResult;
@@ -45,8 +48,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
-//import android.app.AlertDialog;
 
 public class AlitaNativeWebView extends WebView {
     private static final String BRIDGE_NAME = "_WebViewJavascriptBridge";
@@ -805,7 +806,7 @@ public class AlitaNativeWebView extends WebView {
                         .setPositiveButton(android.R.string.ok, listener)
                         .setNegativeButton(android.R.string.cancel, listener)
                         .show();
-                LayoutParams layoutParams = new LayoutParams(
+                FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT);
                 int t = (int) (dpi * 16);

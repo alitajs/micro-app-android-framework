@@ -59,6 +59,7 @@ public class MicroAppActivity extends BaseMiniActivity implements MicroWebChrome
     RelativeLayout mFlParent;
     FrameLayout mContentView;
     TextView mNarBarTitle;
+    AppCompatImageView mNarBackIcon;
     AppCompatImageView mNarCloseIcon;
     AlitaNativeWebView mWebView;
 
@@ -94,6 +95,11 @@ public class MicroAppActivity extends BaseMiniActivity implements MicroWebChrome
                             //你需要改变的颜色
                             vectorDrawableCompat.setTint(Color.parseColor(jsonObject.optString("color")));
                             mNarCloseIcon.setImageDrawable(vectorDrawableCompat);
+
+                            VectorDrawableCompat back = VectorDrawableCompat.create(getResources(), R.drawable.back_icon, getTheme());
+                            //你需要改变的颜色
+                            back.setTint(Color.parseColor(jsonObject.optString("color")));
+                            mNarBackIcon.setImageDrawable(back);
                             //深色
                             //getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
                             //浅色
@@ -199,6 +205,7 @@ public class MicroAppActivity extends BaseMiniActivity implements MicroWebChrome
         mFlParent = findViewById(R.id.fl_parent);
         mContentView = findViewById(R.id.content);
         mNarCloseIcon = findViewById(R.id.close);
+        mNarBackIcon = findViewById(R.id.navbar_back_icon);
         mNarBar.setVisibility(isNeedTopbar ? View.VISIBLE : View.GONE);
         ViewGroup parent = (ViewGroup) mWebView.getParent();
         if (parent != null && parent instanceof ViewGroup) {
