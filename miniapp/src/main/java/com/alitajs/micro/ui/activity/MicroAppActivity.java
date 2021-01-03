@@ -37,6 +37,7 @@ import com.alitajs.micro.ui.bridge.FileAlitaBridge;
 import com.alitajs.micro.ui.bridge.LocationAlitaBridge;
 import com.alitajs.micro.ui.bridge.MediaAlitaBridge;
 import com.alitajs.micro.ui.bridge.UIAlitaBridge;
+import com.alitajs.micro.ui.dialog.LoadingDialog;
 import com.alitajs.micro.ui.web.AlitaNativeWebView;
 import com.alitajs.micro.ui.web.MicroWebChromeClient;
 import com.alitajs.micro.utils.FileUtil;
@@ -62,6 +63,7 @@ public class MicroAppActivity extends BaseMiniActivity implements MicroWebChrome
     AppCompatImageView mNarBackIcon;
     AppCompatImageView mNarCloseIcon;
     AlitaNativeWebView mWebView;
+    LoadingDialog mLoadingDialog;
 
     UIAlitaBridge uiAlitaBridge;
     DeviceAlitaBridge deviceAlitaBridge;
@@ -173,6 +175,7 @@ public class MicroAppActivity extends BaseMiniActivity implements MicroWebChrome
     @Override
     protected void init() {
         LogUtil.i("caicai", "init");
+        initLoadingDialog();
         mWebView = AlitaAgent.getWebView();
         mWebView.setBackgroundResource(R.color.transparent);
         uiAlitaBridge = new UIAlitaBridge(MicroAppActivity.this);
@@ -279,6 +282,9 @@ public class MicroAppActivity extends BaseMiniActivity implements MicroWebChrome
 
             @Override
             public void onPageFinished(String url) {
+                if (mLoadingDialog.isShowing()){
+                    mLoadingDialog.dismiss();
+                }
                 mNarBarBack.setVisibility(mWebView.canGoBack() ? View.VISIBLE : View.GONE);
             }
         });
@@ -296,6 +302,10 @@ public class MicroAppActivity extends BaseMiniActivity implements MicroWebChrome
         mWebView.clearHistory();
     }
 
+    private void initLoadingDialog() {
+        mLoadingDialog = new LoadingDialog(mActivity);
+        mLoadingDialog.show();
+    }
 
     @Override
     protected void release() {

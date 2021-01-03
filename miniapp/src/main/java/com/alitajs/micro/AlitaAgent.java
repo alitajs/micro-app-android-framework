@@ -81,6 +81,11 @@ public class AlitaAgent {
             }
 
             @Override
+            public void onPageCommitVisible(WebView webView, String s) {
+                super.onPageCommitVisible(webView, s);
+            }
+
+            @Override
             public void onLoadResource(WebView view, String url) {
                 super.onLoadResource(view, url);
                // Log.i("caicai", "onLoadResource");

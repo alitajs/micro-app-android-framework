@@ -67,7 +67,7 @@ public class AlitaManager {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             mLoadingDialog.create();
         }
-        mLoadingDialog.initColor(color);
+        mLoadingDialog.initColorRes(color);
     }
 
     private void showLoadingDialog() {
@@ -80,6 +80,14 @@ public class AlitaManager {
         if (mLoadingDialog != null) {
             mLoadingDialog.dismiss();
         }
+    }
+
+    public void startWebView(String url,String userData){
+        AlitaAgent.getWebView().loadUrl(url);
+        Intent intent = new Intent(mActivity, MicroAppActivity.class);
+        intent.putExtra("userData", userData);
+        intent.putExtra("needTopbar", false);
+        mActivity.startActivity(intent);
     }
 
     /**

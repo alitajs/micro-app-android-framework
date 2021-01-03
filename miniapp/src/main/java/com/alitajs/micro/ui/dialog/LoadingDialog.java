@@ -25,6 +25,7 @@ public class LoadingDialog extends Dialog {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        getWindow().setDimAmount(0f);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dialog_loading);
         setCanceledOnTouchOutside(false);
@@ -36,7 +37,11 @@ public class LoadingDialog extends Dialog {
         super.onDetachedFromWindow();
     }
 
-    public void initColor(int color){
+    public void initColorRes(int color){
         progressBar.setProgressTintList(ColorStateList.valueOf(ContextCompat.getColor(mContext,color)));
+    }
+
+    public void initColor(int color){
+        progressBar.setProgressTintList(ColorStateList.valueOf(color));
     }
 }
