@@ -5,16 +5,15 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.view.View;
 
+import com.alitajs.micro.ui.web.AlitaNativeWebView;
+import com.alitajs.micro.utils.FileUtil;
+import com.alitajs.micro.utils.LogUtil;
 import com.tencent.smtt.export.external.TbsCoreSettings;
 import com.tencent.smtt.export.external.interfaces.WebResourceResponse;
 import com.tencent.smtt.sdk.QbSdk;
 import com.tencent.smtt.sdk.ValueCallback;
-
 import com.tencent.smtt.sdk.WebView;
 import com.tencent.smtt.sdk.WebViewClient;
-import com.alitajs.micro.ui.web.AlitaNativeWebView;
-import com.alitajs.micro.utils.FileUtil;
-import com.alitajs.micro.utils.LogUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -74,7 +73,7 @@ public class AlitaAgent {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                LogUtil.i("caicai", "onPageFinished");
+                LogUtil.i("caicai", "onPageFinished " + url);
                 if (mPageStateListener != null){
                     mPageStateListener.onPageFinished(url);
                 }
@@ -106,10 +105,10 @@ public class AlitaAgent {
             @Override
             public void doUpdateVisitedHistory(WebView webView, String s, boolean b) {
                 super.doUpdateVisitedHistory(webView, s, b);
-                if (needClearHistory) {
+                /*if (needClearHistory) {
                     mWebView.clearHistory();
                     needClearHistory = false;
-                }
+                }*/
             }
 
             @Override
@@ -161,7 +160,7 @@ public class AlitaAgent {
         mWebView.clearDisappearingChildren();
         mWebView.clearHistory();
         mWebView.clearAnimation();
-        mWebView.loadUrl("about:blank");
+        //mWebView.loadUrl("about:blank");
         mWebView.removeAllViews();
         mWebView.freeMemory();
         mWebView = null;

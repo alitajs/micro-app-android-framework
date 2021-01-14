@@ -107,8 +107,8 @@ public class AlitaManager {
      */
     public void startMicorApp(MicorAppBean.MicorAppData appData, String userData, DownloadCallback downloadCallback) {
         this.mUserData = userData;
-        AlitaAgent.getWebView().loadDataWithBaseURL(null, "", "text/html", "utf-8", null);
-        AlitaAgent.getWebView().clearHistory();
+//        AlitaAgent.getWebView().loadDataWithBaseURL(null, "", "text/html", "utf-8", null);
+//        AlitaAgent.getWebView().clearHistory();
         if (TextUtils.isEmpty(appData.versionId)) {
             Toast.makeText(mActivity, "暂无上线版本", Toast.LENGTH_SHORT).show();
             return;
@@ -263,6 +263,7 @@ public class AlitaManager {
             Intent intent = new Intent(mActivity, MicroAppActivity.class);
             intent.putExtra("htmlPath", htmlPath);
             intent.putExtra("userData", mUserData);
+            intent.putExtra("url", url);
             //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
             mActivity.startActivity(intent);
         } else {
