@@ -36,6 +36,7 @@ import com.alitajs.micro.ui.bridge.DeviceAlitaBridge;
 import com.alitajs.micro.ui.bridge.FileAlitaBridge;
 import com.alitajs.micro.ui.bridge.LocationAlitaBridge;
 import com.alitajs.micro.ui.bridge.MediaAlitaBridge;
+import com.alitajs.micro.ui.bridge.NoticeAlitaBridge;
 import com.alitajs.micro.ui.bridge.UIAlitaBridge;
 import com.alitajs.micro.ui.dialog.LoadingDialog;
 import com.alitajs.micro.ui.web.AlitaNativeWebView;
@@ -69,6 +70,7 @@ public class MicroAppActivity extends BaseMiniActivity implements MicroWebChrome
     DeviceAlitaBridge deviceAlitaBridge;
     MediaAlitaBridge mediaAlitaBridge;
     FileAlitaBridge fileAlitaBridge;
+    NoticeAlitaBridge noticeAlitaBridge;
     LocationAlitaBridge locationAlitaBridge;
 
     String htmlPath;
@@ -190,6 +192,8 @@ public class MicroAppActivity extends BaseMiniActivity implements MicroWebChrome
         mWebView.addJavascriptObject(fileAlitaBridge, "file");
         locationAlitaBridge = new LocationAlitaBridge(MicroAppActivity.this);
         mWebView.addJavascriptObject(locationAlitaBridge, "location");
+        noticeAlitaBridge = new NoticeAlitaBridge(MicroAppActivity.this);
+        mWebView.addJavascriptObject(noticeAlitaBridge, "notice");
         mWebView.setWebChromeClient(new MicroWebChromeClient(mActivity, this));
         try {
             if (!TextUtils.isEmpty(mUserData)){

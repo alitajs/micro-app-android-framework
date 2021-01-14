@@ -8,7 +8,7 @@ public class ConstantValue {
 
     public static final String PHOTO_TEMP_PATH = TEMP_PATH + "/temp/";
 
-    public static final String BASE_URL = "http://47.92.108.46:8009/api/";
+    public static String BASE_URL = "http://47.92.108.46:8009/api/";
 
     public static String APP_KEY = "";
 

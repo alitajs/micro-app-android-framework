@@ -263,6 +263,7 @@ public class AlitaNativeWebView extends WebView {
         settings.setAppCachePath(APP_CACHE_DIRNAME);
         settings.setSavePassword(true);
         settings.setJavaScriptEnabled(true);
+        settings.setGeolocationEnabled(true);
         settings.setDomStorageEnabled(true);
         settings.setAppCacheMaxSize(1024 * 1024 * 8);
         settings.setSupportMultipleWindows(false);

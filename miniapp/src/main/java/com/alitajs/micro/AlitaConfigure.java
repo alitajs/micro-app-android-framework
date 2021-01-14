@@ -28,4 +28,12 @@ public class AlitaConfigure {
 
     }
 
+    /**
+     * 初始化url
+     * @param url
+     */
+    public static void initUrl(String url){
+        ConstantValue.BASE_URL = url;
+    }
+
 }
