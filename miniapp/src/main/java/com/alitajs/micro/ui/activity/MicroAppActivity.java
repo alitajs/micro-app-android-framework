@@ -27,6 +27,7 @@ import android.widget.Toast;
 
 import com.alitajs.micro.AlitaAgent;
 import com.alitajs.micro.R;
+import com.alitajs.micro.bean.ThemeBean;
 import com.alitajs.micro.data.ConstantValue;
 import com.alitajs.micro.ui.bridge.DeviceAlitaBridge;
 import com.alitajs.micro.ui.bridge.FileAlitaBridge;
@@ -65,6 +66,8 @@ public class MicroAppActivity extends BaseMiniActivity implements MicroWebChrome
     FileAlitaBridge fileAlitaBridge;
     NoticeAlitaBridge noticeAlitaBridge;
     LocationAlitaBridge locationAlitaBridge;
+
+    ThemeBean mThemeBean;
 
     String htmlPath;
     String mUserData;
@@ -160,6 +163,7 @@ public class MicroAppActivity extends BaseMiniActivity implements MicroWebChrome
             mUserData = getIntent().getStringExtra("userData");
             mUrl = getIntent().getStringExtra("url");
             isNeedTopbar = getIntent().getBooleanExtra("needTopbar", true);
+            mThemeBean = (ThemeBean) getIntent().getSerializableExtra("theme");
             Log.i("caicai", "getExtraDatas mUserData = " + mUserData);
         }
     }
@@ -251,7 +255,25 @@ public class MicroAppActivity extends BaseMiniActivity implements MicroWebChrome
                 e.printStackTrace();
             }
         }
-        AlitaAgent.setNeedClearHistory(true);
+
+        //TODO 额外开的主题口 设置头部
+        if (mThemeBean != null){
+            try {
+                if (!TextUtils.isEmpty(mThemeBean.getBackgroundColor())) {
+                    mNarBar.setBackgroundColor(Color.parseColor(mThemeBean.getBackgroundColor()));
+                }
+                if (!TextUtils.isEmpty(mThemeBean.getTextColor())) {
+                    mNarBarTitle.setTextColor(Color.parseColor(mThemeBean.getTextColor()));
+                    VectorDrawableCompat vectorDrawableCompat = VectorDrawableCompat.create(getResources(), R.drawable.close, getTheme());
+                    //你需要改变的颜色
+                    vectorDrawableCompat.setTint(Color.parseColor(mThemeBean.getTextColor()));
+                    mNarCloseIcon.setImageDrawable(vectorDrawableCompat);
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+
     }
 
     @Override
@@ -262,7 +284,7 @@ public class MicroAppActivity extends BaseMiniActivity implements MicroWebChrome
                 finish();
                 mWebView.setBackgroundColor(Color.parseColor("#ffffff"));
                 mWebView.loadDataWithBaseURL(null, "", "text/html", "utf-8", null);
-                mWebView.clearHistory();
+                //mWebView.clearHistory();
             }
         });
 
@@ -299,7 +321,7 @@ public class MicroAppActivity extends BaseMiniActivity implements MicroWebChrome
         finish();
         mWebView.setBackgroundColor(Color.parseColor("#ffffff"));
         mWebView.loadDataWithBaseURL(null, "", "text/html", "utf-8", null);
-        mWebView.clearHistory();
+        //mWebView.clearHistory();
     }
 
     private void initLoadingDialog() {

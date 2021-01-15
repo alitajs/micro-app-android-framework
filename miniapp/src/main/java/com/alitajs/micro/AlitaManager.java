@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.alitajs.micro.bean.MicorAppBean;
+import com.alitajs.micro.bean.ThemeBean;
 import com.alitajs.micro.data.ConstantValue;
 import com.alitajs.micro.net.RequestBusiness;
 import com.alitajs.micro.net.interior.BaseResponse;
@@ -31,6 +32,7 @@ public class AlitaManager {
 
     Activity mActivity;
     String mUserData;
+    ThemeBean mThemeBean;
 
     String dir;
     String appPath;
@@ -78,14 +80,15 @@ public class AlitaManager {
     }
 
     private void dismissLoadingDialog() {
-        if (mLoadingDialog != null) {
+        if (mLoadingDialog != null && mLoadingDialog.isShowing()) {
             mLoadingDialog.dismiss();
         }
     }
 
-    public void startWebView(String url,String userData){
+    public void startWebView(String url, String userData) {
         AlitaAgent.getWebView().loadUrl(url);
         Intent intent = new Intent(mActivity, MicroAppActivity.class);
+        intent.putExtra("theme", mThemeBean);
         intent.putExtra("userData", userData);
         intent.putExtra("needTopbar", false);
         mActivity.startActivity(intent);
@@ -106,10 +109,30 @@ public class AlitaManager {
      * @param appData
      * @param downloadCallback
      */
-    public void startMicorApp(MicorAppBean.MicorAppData appData, String userData, DownloadCallback downloadCallback) {
+    public void startMicorApp(final MicorAppBean.MicorAppData appData, final String userData, final DownloadCallback downloadCallback) {
         this.mUserData = userData;
-//        AlitaAgent.getWebView().loadDataWithBaseURL(null, "", "text/html", "utf-8", null);
-//        AlitaAgent.getWebView().clearHistory();
+        if (downloadCallback == null)
+            showLoadingDialog();
+        //查询一个微应用
+        getMicorAppData(appData.appid, new BaseSubscriber<BaseResponse<MicorAppBean.MicorAppData>>() {
+            @Override
+            public void onError(ExceptionHandle.RespondThrowable e) {
+                startMicorAppTask(appData, userData, downloadCallback);
+            }
+
+            @Override
+            public void onNext(BaseResponse<MicorAppBean.MicorAppData> response) {
+                MicorAppBean.MicorAppData data = response.getData(MicorAppBean.MicorAppData.class);
+                startMicorAppTask(data, userData, downloadCallback);
+            }
+        });
+
+    }
+
+
+    private void startMicorAppTask(MicorAppBean.MicorAppData appData, String userData, DownloadCallback downloadCallback) {
+        //AlitaAgent.getWebView().loadDataWithBaseURL(null, "", "text/html", "utf-8", null);
+        // AlitaAgent.getWebView().clearHistory();
         if (TextUtils.isEmpty(appData.versionId)) {
             Toast.makeText(mActivity, "暂无上线版本", Toast.LENGTH_SHORT).show();
             return;
@@ -138,7 +161,6 @@ public class AlitaManager {
             startWebActivity();
         }
     }
-
 
     /**
      * 获取微应用列表
@@ -170,6 +192,19 @@ public class AlitaManager {
     }
 
     /**
+     * 查询一个微应用
+     *
+     * @param appid
+     * @param subscriber
+     */
+    private void getMicorAppData(String appid, BaseSubscriber<BaseResponse<MicorAppBean.MicorAppData>> subscriber) {
+        RequestProtocol protocol = new RequestProtocol("/api/app/microApp/queryOne");
+        protocol.put("appid", appid);
+        RequestBusiness business = new RequestBusiness();
+        business.json(protocol, subscriber);
+    }
+
+    /**
      * 下载微应用
      */
     private void download(String dwonloadUrl, final String miniAppId, final String version, final DownloadCallback downloadCallback) {
@@ -178,8 +213,6 @@ public class AlitaManager {
         if (!file.exists()) {
             file.mkdirs();
         }
-        if (downloadCallback == null)
-            showLoadingDialog();
         RequestBusiness business = new RequestBusiness();
         RequestProtocol protocol = new RequestProtocol(dwonloadUrl);
         protocol.putSavePath(zipPath);
@@ -253,6 +286,7 @@ public class AlitaManager {
      * 启动页面
      */
     private void startWebActivity() {
+        dismissLoadingDialog();
         htmlPath = "file:///" + appVersionPath + "/" + fileName;
         //已下载已解压
         File htmlFile = new File(appVersionPath + "/" + fileName + "/");
@@ -265,6 +299,7 @@ public class AlitaManager {
             Intent intent = new Intent(mActivity, MicroAppActivity.class);
             intent.putExtra("htmlPath", htmlPath);
             intent.putExtra("userData", mUserData);
+            intent.putExtra("theme", mThemeBean);
             intent.putExtra("url", url);
             //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
             mActivity.startActivity(intent);
@@ -285,12 +320,15 @@ public class AlitaManager {
                         for (File f : files) {
                             FileUtil.delele(f.getPath());
                         }
-                    Toast.makeText(mActivity,"解压失败，请重新下载", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mActivity, "解压失败，请重新下载", Toast.LENGTH_SHORT).show();
                 }
             }
         }
     }
 
+    public void setThemeBean(ThemeBean themeBean) {
+        this.mThemeBean = themeBean;
+    }
 
     //微应用列表回调
     public interface RequestCallback {
