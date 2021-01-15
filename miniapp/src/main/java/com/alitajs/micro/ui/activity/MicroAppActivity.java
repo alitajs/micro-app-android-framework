@@ -29,6 +29,7 @@ import com.alitajs.micro.AlitaAgent;
 import com.alitajs.micro.R;
 import com.alitajs.micro.bean.ThemeBean;
 import com.alitajs.micro.data.ConstantValue;
+import com.alitajs.micro.event.NoticeEvent;
 import com.alitajs.micro.ui.bridge.DeviceAlitaBridge;
 import com.alitajs.micro.ui.bridge.FileAlitaBridge;
 import com.alitajs.micro.ui.bridge.LocationAlitaBridge;
@@ -41,6 +42,9 @@ import com.alitajs.micro.ui.web.MicroWebChromeClient;
 import com.alitajs.micro.utils.FileUtil;
 import com.alitajs.micro.utils.LogUtil;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -201,6 +205,8 @@ public class MicroAppActivity extends BaseMiniActivity implements MicroWebChrome
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -284,7 +290,7 @@ public class MicroAppActivity extends BaseMiniActivity implements MicroWebChrome
                 finish();
                 mWebView.setBackgroundColor(Color.parseColor("#ffffff"));
                 mWebView.loadDataWithBaseURL(null, "", "text/html", "utf-8", null);
-                //mWebView.clearHistory();
+                mWebView.clearHistory();
             }
         });
 
@@ -321,7 +327,7 @@ public class MicroAppActivity extends BaseMiniActivity implements MicroWebChrome
         finish();
         mWebView.setBackgroundColor(Color.parseColor("#ffffff"));
         mWebView.loadDataWithBaseURL(null, "", "text/html", "utf-8", null);
-        //mWebView.clearHistory();
+        mWebView.clearHistory();
     }
 
     private void initLoadingDialog() {
@@ -393,9 +399,20 @@ public class MicroAppActivity extends BaseMiniActivity implements MicroWebChrome
         return super.onKeyUp(keyCode, event);
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onGetMessage(NoticeEvent message) {
+        if (message.getName().equals("finish_microapp")){
+            finish();
+            mWebView.setBackgroundColor(Color.parseColor("#ffffff"));
+            mWebView.loadDataWithBaseURL(null, "", "text/html", "utf-8", null);
+            mWebView.clearHistory();
+        }
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        EventBus.getDefault().unregister(this);
     }
 
     public void showOptions() {
