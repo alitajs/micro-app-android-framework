@@ -34,6 +34,7 @@ public class AlitaManager {
 
     String dir;
     String appPath;
+    String appVersionPath;
     String zipPath;
     String htmlPath;
     String fileName = "miniApp";
@@ -127,8 +128,9 @@ public class AlitaManager {
             }
         }
         //TODO 判断文件是否存在 版本对比 下载，解压，启动
-        appPath = dir + appData.appid + "/" + appData.versionId;
-        zipPath = appPath + "/" + fileName + ".zip";
+        appPath = dir + appData.appid;
+        appVersionPath = appPath + "/" + appData.versionId;
+        zipPath = appVersionPath + "/" + fileName + ".zip";
         File file = new File(zipPath);
         if (!file.exists()) {
             download(ConstantValue.BASE_URL + "version/download/?versionId=" + appData.versionId, appData.appid, appData.versionId, downloadCallback);
@@ -251,9 +253,9 @@ public class AlitaManager {
      * 启动页面
      */
     private void startWebActivity() {
-        htmlPath = "file:///" + appPath + "/" + fileName;
+        htmlPath = "file:///" + appVersionPath + "/" + fileName;
         //已下载已解压
-        File htmlFile = new File(appPath + "/" + fileName + "/");
+        File htmlFile = new File(appVersionPath + "/" + fileName + "/");
         if (htmlFile.exists()) {
             String url = htmlPath;
             if (htmlPath.startsWith("file:///") && !htmlPath.contains("js-call-native")) {
@@ -272,12 +274,18 @@ public class AlitaManager {
             if (zipFile.exists()) {
                 try {
                     //解压
-                    ZipUtils.UnZipFolder(zipPath, appPath + "/" + fileName + "/");
+                    ZipUtils.UnZipFolder(zipPath, appVersionPath + "/" + fileName + "/");
                     startWebActivity();
                 } catch (Exception e) {
                     e.printStackTrace();
-                    //TODO 解压失败，删除文件重新下载
-                    //deleteWebApp(dir + miniAppId, version);
+                    //TODO 解压失败，删除文件 提示重新下载
+                    File root = new File(appPath);
+                    File files[] = root.listFiles();
+                    if (files != null)
+                        for (File f : files) {
+                            FileUtil.delele(f.getPath());
+                        }
+                    Toast.makeText(mActivity,"解压失败，请重新下载", Toast.LENGTH_SHORT).show();
                 }
             }
         }

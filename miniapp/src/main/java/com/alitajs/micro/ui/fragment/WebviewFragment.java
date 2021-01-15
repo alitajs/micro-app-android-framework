@@ -1,6 +1,7 @@
-package com.alitajs.micro.ui.activity;
+package com.alitajs.micro.ui.fragment;
 
 import android.graphics.Bitmap;
+import android.os.Bundle;
 import android.view.View;
 
 import com.alitajs.micro.R;
@@ -9,7 +10,7 @@ import com.tencent.smtt.sdk.WebSettings;
 import com.tencent.smtt.sdk.WebView;
 import com.tencent.smtt.sdk.WebViewClient;
 
-public class WebviewActivity extends BaseMiniActivity {
+public class WebviewFragment extends BaseFragment {
 
     public static final String EXTRA_URL = "EXTRA_URL";
 
@@ -17,26 +18,22 @@ public class WebviewActivity extends BaseMiniActivity {
     protected String url;
 
     @Override
-    protected void getExtraDatas() {
-        super.getExtraDatas();
-        if (getIntent() != null) {
-            url = getIntent().getStringExtra(EXTRA_URL);
-        }
-    }
-
-    @Override
-    protected int provideContentViewId() {
+    protected int provideViewLayoutId() {
         return R.layout.activity_webview;
     }
 
     @Override
-    protected void init() {
-        LogUtil.i("caicai","init");
+    protected void getExtraDatas() {
+        super.getExtraDatas();
+        Bundle bundle = getArguments();
+        if (bundle != null) {
+            url = bundle.getString(EXTRA_URL);
+        }
     }
 
     @Override
     protected void setViews() {
-        mWebView = findViewById(R.id.webview);
+        mWebView = mRootView.findViewById(R.id.webview);
         WebSettings settings = mWebView.getSettings();
         settings.setSavePassword(true);
         settings.setJavaScriptEnabled(true);
@@ -50,7 +47,7 @@ public class WebviewActivity extends BaseMiniActivity {
         settings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NORMAL);
         settings.setLoadsImagesAutomatically(true);
         settings.setPluginState(WebSettings.PluginState.ON);
-        String appCachePath = getCacheDir().getAbsolutePath();
+        String appCachePath = getActivity().getCacheDir().getAbsolutePath();
         settings.setAppCachePath(appCachePath);
         settings.setAppCacheEnabled(true);    //开启H5(APPCache)缓存功能
         settings.setAllowFileAccess(true);// 可以读取文件缓存
@@ -94,5 +91,4 @@ public class WebviewActivity extends BaseMiniActivity {
     protected void addJavascriptInterface(){
 
     }
-
 }
