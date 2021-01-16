@@ -21,6 +21,8 @@ public class ConstantValue {
     public static final int OPEN_CAMER_REQ_CODE = 1005;
     //打开手机相册
     public static final int OPEN_ALBUM_REQ_CODE = 1006;
+    //打开GPS
+    public static final int OPEN_GPS_REQ_CODE = 1007;
 
 
     /**

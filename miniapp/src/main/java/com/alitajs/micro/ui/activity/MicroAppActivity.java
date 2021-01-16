@@ -50,7 +50,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 
-public class MicroAppActivity extends BaseMiniActivity implements MicroWebChromeClient.OpenFileChooserCallBack{
+public class MicroAppActivity extends BaseMiniActivity implements MicroWebChromeClient.OpenFileChooserCallBack {
 
     static final int REQUEST_CODE_PICK_IMAGE = 10;
 
@@ -143,10 +143,10 @@ public class MicroAppActivity extends BaseMiniActivity implements MicroWebChrome
                         JSONObject status = new JSONObject(String.valueOf(msg.obj));
                         if (status.has("theme")) {
                             String theme = status.optString("theme");
-                            if (theme.equals("light")){
+                            if (theme.equals("light")) {
                                 //浅色
                                 getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-                            }else if (theme.equals("dark")){
+                            } else if (theme.equals("dark")) {
                                 //深色
                                 getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
                             }
@@ -199,7 +199,7 @@ public class MicroAppActivity extends BaseMiniActivity implements MicroWebChrome
         mWebView.addJavascriptObject(noticeAlitaBridge, "notice");
         mWebView.setWebChromeClient(new MicroWebChromeClient(mActivity, this));
         try {
-            if (!TextUtils.isEmpty(mUserData)){
+            if (!TextUtils.isEmpty(mUserData)) {
                 deviceAlitaBridge.setUserData(new JSONObject(mUserData));
             }
         } catch (JSONException e) {
@@ -263,7 +263,7 @@ public class MicroAppActivity extends BaseMiniActivity implements MicroWebChrome
         }
 
         //TODO 额外开的主题口 设置头部
-        if (mThemeBean != null){
+        if (mThemeBean != null) {
             try {
                 if (!TextUtils.isEmpty(mThemeBean.getBackgroundColor())) {
                     mNarBar.setBackgroundColor(Color.parseColor(mThemeBean.getBackgroundColor()));
@@ -275,7 +275,7 @@ public class MicroAppActivity extends BaseMiniActivity implements MicroWebChrome
                     vectorDrawableCompat.setTint(Color.parseColor(mThemeBean.getTextColor()));
                     mNarCloseIcon.setImageDrawable(vectorDrawableCompat);
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -309,7 +309,7 @@ public class MicroAppActivity extends BaseMiniActivity implements MicroWebChrome
 
             @Override
             public void onPageFinished(String url) {
-                if (mLoadingDialog.isShowing()){
+                if (mLoadingDialog.isShowing()) {
                     mLoadingDialog.dismiss();
                     mWebView.clearHistory();
                 }
@@ -348,6 +348,10 @@ public class MicroAppActivity extends BaseMiniActivity implements MicroWebChrome
         }
         if (deviceAlitaBridge != null) {
             deviceAlitaBridge.onActivityResult(requestCode, resultCode, data);
+        }
+
+        if (locationAlitaBridge != null) {
+            locationAlitaBridge.onActivityResult(requestCode, resultCode, data);
         }
 
         if (resultCode == RESULT_CANCELED) {
@@ -401,7 +405,7 @@ public class MicroAppActivity extends BaseMiniActivity implements MicroWebChrome
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onGetMessage(NoticeEvent message) {
-        if (message.getName().equals("finish_microapp")){
+        if (message.getName().equals("finish_microapp")) {
             finish();
             mWebView.setBackgroundColor(Color.parseColor("#ffffff"));
             mWebView.loadDataWithBaseURL(null, "", "text/html", "utf-8", null);

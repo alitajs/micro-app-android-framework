@@ -308,22 +308,47 @@ public class AlitaManager {
             File zipFile = new File(zipPath);
             if (zipFile.exists()) {
                 try {
+                    String unZipPath = appVersionPath + "/" + fileName + "/";
                     //解压
-                    ZipUtils.UnZipFolder(zipPath, appVersionPath + "/" + fileName + "/");
-                    startWebActivity();
+                    ZipUtils.UnZipFolder(zipPath, unZipPath);
+                    //TODO 判断解压文件是否完整
+                    boolean isUnZipFilesExists = true;
+                    File icon = new File(unZipPath + "icon.png");
+                    if (!icon.exists()){
+                        isUnZipFilesExists = false;
+                    }
+                    File json = new File(unZipPath + "asset-manifest.json");
+                    if (!json.exists()){
+                        isUnZipFilesExists = false;
+                    }
+                    File dist = new File(unZipPath + "dist");
+                    if (!dist.exists()){
+                        isUnZipFilesExists = false;
+                    }
+
+                    if (isUnZipFilesExists){
+                        startWebActivity();
+                    }else {
+                        deleteAppFile();
+                        Toast.makeText(mActivity, "下载失败，请重试", Toast.LENGTH_SHORT).show();
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                     //TODO 解压失败，删除文件 提示重新下载
-                    File root = new File(appPath);
-                    File files[] = root.listFiles();
-                    if (files != null)
-                        for (File f : files) {
-                            FileUtil.delele(f.getPath());
-                        }
+                    deleteAppFile();
                     Toast.makeText(mActivity, "解压失败，请重新下载", Toast.LENGTH_SHORT).show();
                 }
             }
         }
+    }
+
+    private void deleteAppFile(){
+        File root = new File(appPath);
+        File files[] = root.listFiles();
+        if (files != null)
+            for (File f : files) {
+                FileUtil.delele(f.getPath());
+            }
     }
 
     public void setThemeBean(ThemeBean themeBean) {
