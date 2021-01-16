@@ -53,6 +53,19 @@ public class LocationAlitaBridge {
                 new BaseMiniActivity.OnRequestPermissionListen() {
                     @Override
                     public void succeed() {
+                        if (ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                                && ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                            return;
+                        }
+                        //获取系统的LocationManager对象
+                        LocationManager locationManager = (LocationManager) mActivity.getSystemService(Context.LOCATION_SERVICE);
+                        // 判断GPS是否正常启动
+                        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                            // 返回开启GPS导航设置界面
+                            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                            mActivity.startActivityForResult(intent, ConstantValue.OPEN_GPS_REQ_CODE);
+                            return;
+                        }
                         location();
                     }
 
@@ -68,17 +81,11 @@ public class LocationAlitaBridge {
         try {
             if (ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                     && ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                mHandler.complete(new CompletionBean(3, "GPS权限未打开", "").getResult());
                 return;
             }
             //获取系统的LocationManager对象
             LocationManager locationManager = (LocationManager) mActivity.getSystemService(Context.LOCATION_SERVICE);
-            // 判断GPS是否正常启动
-            if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                // 返回开启GPS导航设置界面
-                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                mActivity.startActivityForResult(intent, ConstantValue.OPEN_GPS_REQ_CODE);
-                return;
-            }
             Criteria criteria = new Criteria();
             // 设置定位精确度 Criteria.ACCURACY_COARSE比较粗略，Criteria.ACCURACY_FINE则比较精细
             criteria.setAccuracy(Criteria.ACCURACY_FINE);
