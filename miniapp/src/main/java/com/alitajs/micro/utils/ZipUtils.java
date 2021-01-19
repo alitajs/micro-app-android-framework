@@ -103,8 +103,8 @@ public class ZipUtils {
                 while ((len = inZip.read(buffer)) != -1) {
                     // 从缓冲区（0）位置写入（字节）字节
                     out.write(buffer, 0, len);
-                    out.flush();
                 }
+                out.flush();
                 out.close();
             }
         }

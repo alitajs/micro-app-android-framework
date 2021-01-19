@@ -2,17 +2,22 @@ package com.alitajs.micro.ui.activity;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
+import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.graphics.drawable.VectorDrawableCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.widget.AppCompatImageView;
 import android.text.TextUtils;
 import android.util.Log;
@@ -25,8 +30,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.alitajs.micro.AlitaAgent;
 import com.alitajs.micro.R;
+import com.alitajs.micro.AlitaAgent;
 import com.alitajs.micro.bean.ThemeBean;
 import com.alitajs.micro.data.ConstantValue;
 import com.alitajs.micro.event.NoticeEvent;
@@ -41,6 +46,7 @@ import com.alitajs.micro.ui.web.AlitaNativeWebView;
 import com.alitajs.micro.ui.web.MicroWebChromeClient;
 import com.alitajs.micro.utils.FileUtil;
 import com.alitajs.micro.utils.LogUtil;
+import com.lcw.library.imagepicker.activity.BaseActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -49,6 +55,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class MicroAppActivity extends BaseMiniActivity implements MicroWebChromeClient.OpenFileChooserCallBack {
 
@@ -417,6 +425,10 @@ public class MicroAppActivity extends BaseMiniActivity implements MicroWebChrome
     protected void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
+        if (mHandler != null){
+            mHandler.removeCallbacksAndMessages(null);
+            mHandler = null;
+        }
     }
 
     public void showOptions() {
