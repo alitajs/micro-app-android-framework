@@ -2,7 +2,6 @@ package com.alitajs.micro.ui.bridge;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -17,8 +16,8 @@ import android.webkit.JavascriptInterface;
 import android.widget.Toast;
 
 import com.alitajs.micro.AlitaAgent;
-import com.alitajs.micro.BuildConfig;
 import com.alitajs.micro.AlitaManager;
+import com.alitajs.micro.BuildConfig;
 import com.alitajs.micro.bean.CompletionBean;
 import com.alitajs.micro.bean.MicorAppBean;
 import com.alitajs.micro.data.ConstantValue;
@@ -383,6 +382,22 @@ public class DeviceAlitaBridge {
             handler.complete(new CompletionBean(3, e.toString(), "").getResult());
         }
 
+    }
+
+    /**
+     * 关闭当前微应用
+     * @param params
+     * @param handler
+     */
+    @JavascriptInterface
+    public void closeMicroApp(Object params, final CompletionHandler handler) {
+        try {
+            mActivity.finish();
+            handler.complete(new CompletionBean(0, "关闭微应用成功", "").getResult());
+        }catch (Exception e) {
+            e.printStackTrace();
+            handler.complete(new CompletionBean(3, e.toString(), "").getResult());
+        }
     }
 
 }
