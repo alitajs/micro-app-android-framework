@@ -41,6 +41,8 @@ public class AlitaManager {
     String htmlPath;
     String fileName = "miniApp";
 
+    int mLoadingColor;
+
     LoadingDialog mLoadingDialog;
 
     static volatile AlitaManager instance;
@@ -67,10 +69,19 @@ public class AlitaManager {
 
     public void initLoadingDialog(Activity activity, int color) {
         mLoadingDialog = new LoadingDialog(activity);
+        mLoadingColor = color;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             mLoadingDialog.create();
         }
         mLoadingDialog.initColorRes(color);
+    }
+
+    public void initLoadingDialog(Activity activity) {
+        mLoadingDialog = new LoadingDialog(activity);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mLoadingDialog.create();
+        }
+        mLoadingDialog.initColorRes(mLoadingColor == 0 ? R.color.bg_black : mLoadingColor);
     }
 
     private void showLoadingDialog() {
@@ -123,6 +134,7 @@ public class AlitaManager {
             @Override
             public void onNext(BaseResponse<MicorAppBean.MicorAppData> response) {
                 MicorAppBean.MicorAppData data = response.getData(MicorAppBean.MicorAppData.class);
+                data.versionId = "192";
                 startMicorAppTask(data, userData, downloadCallback);
             }
         });

@@ -2,6 +2,7 @@ package com.alitajs.micro.ui.bridge;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -16,8 +17,9 @@ import android.webkit.JavascriptInterface;
 import android.widget.Toast;
 
 import com.alitajs.micro.AlitaAgent;
-import com.alitajs.micro.AlitaManager;
 import com.alitajs.micro.BuildConfig;
+import com.alitajs.micro.AlitaManager;
+import com.alitajs.micro.R;
 import com.alitajs.micro.bean.CompletionBean;
 import com.alitajs.micro.bean.MicorAppBean;
 import com.alitajs.micro.data.ConstantValue;
@@ -288,7 +290,7 @@ public class DeviceAlitaBridge {
     @JavascriptInterface
     public void openMicroApp(Object params, final CompletionHandler handler) {
         try {
-
+            AlitaManager.getInstance(mActivity).initLoadingDialog(mActivity);
             JSONObject jsonObject = new JSONObject(params.toString());
             userData = jsonObject.optJSONObject("userData");
             JSONObject app = jsonObject.optJSONObject("app");
@@ -300,7 +302,8 @@ public class DeviceAlitaBridge {
                 appData.versionId = versionId;
                 appData.appid = appid;
                 appData.appName = appName;
-                AlitaManager.getInstance(mActivity).startMicorApp(appData, userData.toString(), null);
+                AlitaManager.getInstance(mActivity).startMicorApp(appData, userData == null ? "" : userData.toString(), null);
+                mActivity.finish();
                 return;
             }
             String appURL = jsonObject.optString("appURL");
