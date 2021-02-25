@@ -134,7 +134,6 @@ public class AlitaManager {
             @Override
             public void onNext(BaseResponse<MicorAppBean.MicorAppData> response) {
                 MicorAppBean.MicorAppData data = response.getData(MicorAppBean.MicorAppData.class);
-                data.versionId = "192";
                 startMicorAppTask(data, userData, downloadCallback);
             }
         });
