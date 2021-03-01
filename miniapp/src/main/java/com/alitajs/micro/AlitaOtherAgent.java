@@ -5,22 +5,21 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.view.View;
 
+import com.alitajs.micro.ui.web.AlitaNativeWebView;
+import com.alitajs.micro.utils.FileUtil;
+import com.alitajs.micro.utils.LogUtil;
 import com.tencent.smtt.export.external.TbsCoreSettings;
 import com.tencent.smtt.export.external.interfaces.WebResourceResponse;
 import com.tencent.smtt.sdk.QbSdk;
 import com.tencent.smtt.sdk.ValueCallback;
-
 import com.tencent.smtt.sdk.WebView;
 import com.tencent.smtt.sdk.WebViewClient;
-import com.alitajs.micro.ui.web.AlitaNativeWebView;
-import com.alitajs.micro.utils.FileUtil;
-import com.alitajs.micro.utils.LogUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 
-public class AlitaAgent {
+public class AlitaOtherAgent {
 
     static AlitaNativeWebView mWebView;
     static boolean needClearHistory;
@@ -140,7 +139,7 @@ public class AlitaAgent {
     }
 
     public static void setNeedClearHistory(boolean needClearHistory) {
-        AlitaAgent.needClearHistory = needClearHistory;
+        AlitaOtherAgent.needClearHistory = needClearHistory;
     }
 
     /**

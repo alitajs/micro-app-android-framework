@@ -3,11 +3,11 @@ package com.alitajs.micro.ui.activity;
 import android.graphics.Bitmap;
 import android.view.View;
 
-import com.alitajs.micro.R;
-import com.alitajs.micro.utils.LogUtil;
 import com.tencent.smtt.sdk.WebSettings;
 import com.tencent.smtt.sdk.WebView;
 import com.tencent.smtt.sdk.WebViewClient;
+import com.alitajs.micro.R;
+import com.alitajs.micro.utils.LogUtil;
 
 public class WebviewActivity extends BaseMiniActivity {
 

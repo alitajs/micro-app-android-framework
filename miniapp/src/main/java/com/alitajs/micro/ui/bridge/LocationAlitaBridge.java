@@ -1,6 +1,7 @@
 package com.alitajs.micro.ui.bridge;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -19,7 +20,7 @@ import com.alitajs.micro.ui.web.CompletionHandler;
 
 import org.json.JSONObject;
 
-public class LocationAlitaBridge {
+public class LocationAlitaBridge{
 
     BaseMiniActivity mActivity;
     CompletionHandler mHandler;

@@ -302,8 +302,8 @@ public class DeviceAlitaBridge {
                 appData.versionId = versionId;
                 appData.appid = appid;
                 appData.appName = appName;
-                AlitaManager.getInstance(mActivity).startMicorApp(appData, userData == null ? "" : userData.toString(), null);
-                //mActivity.finish();
+                AlitaManager.getInstance(mActivity).startOtherMicorApp(appData, userData == null ? "" : userData.toString(), null);
+               // mActivity.finish();
                 return;
             }
             String appURL = jsonObject.optString("appURL");

@@ -23,6 +23,7 @@ public class AlitaConfigure {
      */
     public static void init(final Context context, String appKey){
        AlitaAgent.initWebView(context);
+       AlitaOtherAgent.initWebView(context);
         ConstantValue.APP_KEY = appKey;
        //TODO 微应用初始化
 

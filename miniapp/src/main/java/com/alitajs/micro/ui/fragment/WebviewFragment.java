@@ -10,7 +10,7 @@ import com.tencent.smtt.sdk.WebSettings;
 import com.tencent.smtt.sdk.WebView;
 import com.tencent.smtt.sdk.WebViewClient;
 
-public class WebviewFragment extends BaseFragment {
+public class WebviewFragment extends BaseFragment{
 
     public static final String EXTRA_URL = "EXTRA_URL";
 

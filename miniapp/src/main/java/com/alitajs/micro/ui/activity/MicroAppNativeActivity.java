@@ -1,8 +1,10 @@
 package com.alitajs.micro.ui.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
@@ -29,6 +31,7 @@ import com.alitajs.micro.ui.bridge.UIAlitaBridge;
 import com.alitajs.micro.ui.web.AlitaNativeWebView;
 import com.alitajs.micro.utils.FileUtil;
 import com.alitajs.micro.utils.LogUtil;
+import com.tencent.smtt.export.external.interfaces.WebResourceRequest;
 import com.tencent.smtt.export.external.interfaces.WebResourceResponse;
 import com.tencent.smtt.sdk.ValueCallback;
 import com.tencent.smtt.sdk.WebView;
@@ -36,6 +39,9 @@ import com.tencent.smtt.sdk.WebViewClient;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 public class MicroAppNativeActivity extends BaseMiniActivity {
 
@@ -147,7 +153,7 @@ public class MicroAppNativeActivity extends BaseMiniActivity {
             parent.removeView(mWebView);
         }
 
-        final String vendors = FileUtil.getJsStr(mActivity, "web-framework.js");
+        //final String vendors = FileUtil.getJsStr(mActivity, "web-framework.js");
         final String jsStr = FileUtil.getJsStr(mActivity, "dsbridge.js");
         mWebView.setWebViewClient(new WebViewClient() {
             @Override
@@ -161,12 +167,12 @@ public class MicroAppNativeActivity extends BaseMiniActivity {
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 super.onPageStarted(view, url, favicon);
                 LogUtil.i("caicai", "onPageStarted " + url);
-                mWebView.evaluateJavascript(vendors, new ValueCallback<String>() {
-                    @Override
-                    public void onReceiveValue(String value) {
-                        Log.i("caicai", "vendors " + value);
-                    }
-                });
+//                mWebView.evaluateJavascript(vendors, new ValueCallback<String>() {
+//                    @Override
+//                    public void onReceiveValue(String value) {
+//                        Log.i("caicai", "vendors " + value);
+//                    }
+//                });
                 mWebView.evaluateJavascript(jsStr, new ValueCallback<String>() {
                     @Override
                     public void onReceiveValue(String value) {
@@ -186,12 +192,12 @@ public class MicroAppNativeActivity extends BaseMiniActivity {
             public void onLoadResource(WebView view, String url) {
                 super.onLoadResource(view, url);
                 Log.i("caicai", "onLoadResource");
-                mWebView.evaluateJavascript(vendors, new ValueCallback<String>() {
-                    @Override
-                    public void onReceiveValue(String value) {
-                        Log.i("caicai", "vendors " + value);
-                    }
-                });
+//                mWebView.evaluateJavascript(vendors, new ValueCallback<String>() {
+//                    @Override
+//                    public void onReceiveValue(String value) {
+//                        Log.i("caicai", "vendors " + value);
+//                    }
+//                });
                 mWebView.evaluateJavascript(jsStr, new ValueCallback<String>() {
                     @Override
                     public void onReceiveValue(String value) {
@@ -207,7 +213,22 @@ public class MicroAppNativeActivity extends BaseMiniActivity {
 
             @Override
             public WebResourceResponse shouldInterceptRequest(WebView webView, String url) {
+                if (Build.VERSION.SDK_INT >= 21) {
+                    if (url.indexOf("web-framework.js") > -1) {
+                        return getWebResourceResponse(mActivity,"web-framework.js");
+                    }
+                }
                 return super.shouldInterceptRequest(webView, url);
+            }
+
+            @Override
+            public WebResourceResponse shouldInterceptRequest(WebView webView, WebResourceRequest request) {
+                if (Build.VERSION.SDK_INT >= 21) {
+                    if (request.getUrl().toString().indexOf("web-framework.js") > -1) {
+                        return getWebResourceResponse(mActivity,"web-framework.js");
+                    }
+                }
+                return super.shouldInterceptRequest(webView, request);
             }
         });
         mWebView.setScrollBarStyle(View.SCROLLBARS_OUTSIDE_OVERLAY);
@@ -245,6 +266,19 @@ public class MicroAppNativeActivity extends BaseMiniActivity {
             }*/
             mWebView.loadUrl(htmlPath);
         }
+    }
+
+    private static WebResourceResponse getWebResourceResponse(Context context, String url) {
+        WebResourceResponse res = null;
+        try {
+            InputStream instream = context.getResources().getAssets().open(
+                    url);
+            res = new WebResourceResponse("text/javascript",
+                    "UTF-8", instream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return res;
     }
 
     @Override

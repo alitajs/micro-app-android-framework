@@ -19,6 +19,7 @@ import com.alitajs.micro.net.interior.ExceptionHandle;
 import com.alitajs.micro.net.interior.ProgressCallBack;
 import com.alitajs.micro.net.protocol.RequestProtocol;
 import com.alitajs.micro.ui.activity.MicroAppActivity;
+import com.alitajs.micro.ui.activity.MicroAppOtherActivity;
 import com.alitajs.micro.ui.dialog.LoadingDialog;
 import com.alitajs.micro.utils.FileUtil;
 import com.alitajs.micro.utils.LogUtil;
@@ -33,6 +34,7 @@ public class AlitaManager {
     Activity mActivity;
     String mUserData;
     ThemeBean mThemeBean;
+    boolean isOtherMicorApp = false;
 
     String dir;
     String appPath;
@@ -122,6 +124,7 @@ public class AlitaManager {
      */
     public void startMicorApp(final MicorAppBean.MicorAppData appData, final String userData, final DownloadCallback downloadCallback) {
         this.mUserData = userData;
+        this.isOtherMicorApp = false;
         if (downloadCallback == null)
             showLoadingDialog();
         //查询一个微应用
@@ -137,9 +140,34 @@ public class AlitaManager {
                 startMicorAppTask(data, userData, downloadCallback);
             }
         });
-
     }
 
+
+    /**
+     * 微应用启动微应用
+     *
+     * @param appData
+     * @param downloadCallback
+     */
+    public void startOtherMicorApp(final MicorAppBean.MicorAppData appData, final String userData, final DownloadCallback downloadCallback) {
+        this.mUserData = userData;
+        this.isOtherMicorApp = true;
+        if (downloadCallback == null)
+            showLoadingDialog();
+        //查询一个微应用
+        getMicorAppData(appData.appid, new BaseSubscriber<BaseResponse<MicorAppBean.MicorAppData>>() {
+            @Override
+            public void onError(ExceptionHandle.RespondThrowable e) {
+                startMicorAppTask(appData, userData, downloadCallback);
+            }
+
+            @Override
+            public void onNext(BaseResponse<MicorAppBean.MicorAppData> response) {
+                MicorAppBean.MicorAppData data = response.getData(MicorAppBean.MicorAppData.class);
+                startMicorAppTask(data, userData, downloadCallback);
+            }
+        });
+    }
 
     private void startMicorAppTask(MicorAppBean.MicorAppData appData, String userData, DownloadCallback downloadCallback) {
         //AlitaAgent.getWebView().loadDataWithBaseURL(null, "", "text/html", "utf-8", null);
@@ -306,8 +334,15 @@ public class AlitaManager {
             if (htmlPath.startsWith("file:///") && !htmlPath.contains("js-call-native")) {
                 url += "/dist/index.html";
             }
-            AlitaAgent.getWebView().loadUrl(url);
-            Intent intent = new Intent(mActivity, MicroAppActivity.class);
+            Intent intent;
+            if (isOtherMicorApp){
+                AlitaOtherAgent.getWebView().loadUrl(url);
+                intent = new Intent(mActivity, MicroAppOtherActivity.class);
+            }else {
+                AlitaAgent.getWebView().loadUrl(url);
+                intent = new Intent(mActivity, MicroAppActivity.class);
+            }
+
             intent.putExtra("htmlPath", htmlPath);
             intent.putExtra("userData", mUserData);
             intent.putExtra("theme", mThemeBean);
